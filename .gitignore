@@ -1,0 +1,13 @@
+bench/
+build/
+public/
+site/
+cache/
+vendor/
+.DS_Store/
+.idea/
+composer.lock
+*.phar
+*.cache
+auth.*
+.env

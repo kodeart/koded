@@ -2,7 +2,6 @@
 
 namespace Koded\Framework;
 
-use Koded\Http\Interfaces\HttpStatus;
 use Koded\Stdlib\UUID;
 use Psr\SimpleCache\CacheInterface;
 use function Koded\Stdlib\{json_serialize, json_unserialize};
@@ -52,10 +51,14 @@ class RegexRouter
         [$route['regex'], $identity] = $this->compile($template);
 
         if (isset($this->identity[$identity])) {
-            throw new \RuntimeException(\sprintf(
-                'Detected a multiple route definitions. The URI template for route "%s" 
-                conflicts with already defined route "%s". Please fix your routes.',
-                $template, $this->identity[$identity]), HttpStatus::CONFLICT);
+            throw (new HTTPConflict(
+                title:'Invalid route',
+                instance: $template,
+                detail: \preg_replace('/['.PHP_EOL.' ]+/', ' ', \sprintf(
+                    'Detected a multiple route definitions. The URI template for route "%s" 
+                    conflicts with already defined route "%s". Please fix your routes.',
+                    $template, $this->identity[$identity]))
+            ))->setMember('conflict-route', [$template => $this->identity[$identity]]);
         }
         $route['identity'] = $identity;
         $this->identity[$identity] = $template;
@@ -121,9 +124,11 @@ class RegexRouter
                         $regex, $matches, PREG_SET_ORDER);
 
         if (empty($matches)) {
-            throw new \RuntimeException(\sprintf('Invalid route "%s". Supported argument types are (%s)',
-                $template, \join(', ', \array_keys($types))
-            ), HttpStatus::CONFLICT);
+            throw (new HTTPConflict(
+                title: 'Invalid route',
+                instance: $template,
+                detail: 'Use supported argument types'
+            ))->setMember('supported-types', \array_keys($types));
         }
         foreach ($matches as $match) {
             [$search, $replace, $filter] = $match + [2 => ':str'];

@@ -1,10 +1,34 @@
 <?php
 
-namespace Koded\Framework\Error;
+namespace Koded\Framework;
 
 use Koded\Http\Interfaces\HttpStatus;
 use Koded\Http\StatusCode;
 use function Koded\Stdlib\{json_serialize, xml_serialize};
+
+
+interface KodedHTTPError
+{
+    public function getStatusCode(): int;
+
+    public function getTitle(): string;
+
+    public function getType(): string;
+
+    public function getDetail(): string;
+
+    public function getInstance(): string;
+
+    public function getHeaders(): iterable;
+
+    public function setMember(string $name, mixed $value): static;
+
+    public function toJson(): string;
+
+    public function toXml(): string;
+
+    public function toArray(): array;
+}
 
 /**
  * Represents a generic HTTP error.
@@ -125,5 +149,27 @@ class HTTPError extends \RuntimeException implements KodedHTTPError
             'title'    => $this->message,
             'type'     => $this->type ?: "https://httpstatuses.com/{$status}",
         ], $this->members);
+    }
+
+    public function __serialize(): array
+    {
+        return $this->toArray() + [
+            'members' => $this->members,
+            'headers' => $this->headers,
+        ];
+    }
+
+    public function __unserialize(array $data): void
+    {
+        list(
+            'status'   => $this->code,
+            'title'    => $this->title,
+            'title'    => $this->message,
+            'type'     => $this->type,
+            'detail'   => $this->detail,
+            'instance' => $this->instance,
+            'members'  => $this->members,
+            'headers'  => $this->headers,
+        ) = $data;
     }
 }

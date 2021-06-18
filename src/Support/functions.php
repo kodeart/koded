@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-use Koded\Framework\Error\HTTPError;
+use Koded\Framework\HTTPError;
 use Koded\Framework\I18n\{I18n, I18nCatalog};
 use Koded\Http\AcceptHeaderNegotiator;
 use Koded\Http\Interfaces\{Request, Response};

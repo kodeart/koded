@@ -2,7 +2,7 @@
 
 namespace Koded\Framework\Auth;
 
-use Koded\Framework\Error\{HTTPError, HTTPUnauthorized};
+use Koded\Framework\{HTTPError, HTTPUnauthorized};
 
 /**
  * Implements HTTP Basic Authentication

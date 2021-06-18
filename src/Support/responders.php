@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-use Koded\Framework\Error\{HTTPBadRequest, HTTPMethodNotAllowed, HTTPNotFound};
-use Koded\Http\Client\ClientFactory;
+use Koded\Framework\{HTTPBadRequest, HTTPMethodNotAllowed, HTTPNotFound};
 use Koded\Http\{HttpFactory, ServerResponse};
+use Koded\Http\Client\ClientFactory;
 use Koded\Http\Interfaces\{HttpStatus, Request};
 use Psr\Http\Message\ResponseInterface;
 use function Koded\Http\create_stream;

@@ -3,7 +3,6 @@
 namespace Koded\Framework;
 
 use Koded\DIContainer;
-use Koded\Framework\Error\HTTPError;
 use Koded\Framework\Middleware\{CorsMiddleware, GzipMiddleware};
 use Koded\Http\Interfaces\{HttpStatus, Request};
 use Koded\Stdlib\Configuration;

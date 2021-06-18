@@ -2,7 +2,7 @@
 
 namespace Koded\Framework\Auth;
 
-use Koded\Framework\Error\HTTPUnauthorized;
+use Koded\Framework\HTTPUnauthorized;
 
 /**
  * Implements Bearer based authentication.

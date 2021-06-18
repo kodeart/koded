@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Koded\Framework\Error;
+namespace Koded\Framework;
 
 use Koded\Http\Interfaces\HttpStatus;
 

@@ -12,9 +12,6 @@ use Psr\Log\LoggerInterface;
 use Whoops\Handler\{JsonResponseHandler, PrettyPageHandler};
 use Whoops\Run as WoopsRunner;
 
-// There is only UTC, everything else is local
-\date_default_timezone_set('UTC');
-
 (new WoopsRunner)
     ->prependHandler(new PrettyPageHandler)
     ->prependHandler(new JsonResponseHandler)
@@ -35,7 +32,9 @@ class App implements RequestHandlerInterface
         private mixed $renderer = 'start_response',
         private array $middleware = [])
     {
-        $this->container = new DIContainer(new KodedModule($config), ...$modules);
+        // There is only UTC, everything else is local
+        \date_default_timezone_set('UTC');
+        $this->container = new DIContainer(new Module($config), ...$modules);
         $this->middleware = [new GzipMiddleware, ...$middleware, CorsMiddleware::class];
         $this->useErrorHandler(HTTPError::class, 'static::httpErrorHandler');
         $this->useErrorHandler(\Exception::class, 'static::phpErrorHandler');
@@ -96,7 +95,7 @@ class App implements RequestHandlerInterface
         array $middleware = [],
         bool $explicit = false): App
     {
-        $this->container->get(RegexRouter::class)->route($uriTemplate, $resource);
+        $this->container->get(Router::class)->route($uriTemplate, $resource);
         $this->explicit[$uriTemplate] = [$explicit, $middleware];
         return $this;
     }
@@ -183,7 +182,7 @@ class App implements RequestHandlerInterface
         string|null &$uriTemplate): callable
     {
         $path = \rawurldecode($request->getUri()->getPath());
-        $match = $this->container->get(RegexRouter::class)->match($path);
+        $match = $this->container->get(Router::class)->match($path);
         $uriTemplate = $match['template'] ?? null;
         $resource = $match['resource'] ?? null;
         $allowed = \array_keys(map_http_methods($resource ?? new \stdClass));

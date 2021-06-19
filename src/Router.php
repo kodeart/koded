@@ -91,18 +91,15 @@ class Router
             'resource' => \is_object($resource) ? '' : $resource,
         ];
         [$route['regex'], $identity] = $this->compileTemplate($template);
-
         if (isset($this->identity[$identity])) {
             throw (new HTTPConflict(
                 title: 'Invalid route',
                 instance: $template,
-                detail: \preg_replace('/[' . PHP_EOL . ' ]+/',
-                                      ' ',
-                                      \sprintf(
-                                          'Detected a multiple route definitions. The URI template for route "%s" 
-                    conflicts with already defined route "%s". Please fix your routes.',
-                                          $template,
-                                          $this->identity[$identity]))
+                detail: \preg_replace(
+                    '/[' . PHP_EOL . ' ]+/', ' ', \sprintf(
+                        'Detected a multiple route definitions. The URI template for route "%s" 
+                        conflicts with already defined route "%s". Please fix your routes.',
+                        $template, $this->identity[$identity]))
             ))->setMember('conflict-route', [$template => $this->identity[$identity]]);
         }
         $route['identity'] = $identity;
@@ -129,8 +126,8 @@ class Router
 
             // TODO: Quick test for duplicate subpattern names
             \preg_match($regex, '/');
-
             return [$regex, $identity];
+
         } catch (\Throwable $ex) {
             throw new HTTPConflict(
                 title: 'PCRE compilation error',
@@ -140,9 +137,7 @@ class Router
         }
     }
 
-    private function processMatches(
-        string $template,
-        int $numberOfParams): array
+    private function processMatches(string $template, int $numberOfParams): array
     {
         $filters = ':str|:int|:float|:path|:uuid|:regex:.+'; // TODO path
 

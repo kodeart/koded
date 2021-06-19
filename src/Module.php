@@ -14,7 +14,7 @@ use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 use function Koded\Caching\simple_cache_factory;
 
-final class KodedModule implements DIModule
+final class Module implements DIModule
 {
     private const ENV_KEY = '__KODED_CONFIG';
 
@@ -37,8 +37,8 @@ final class KodedModule implements DIModule
         $container->share($conf = $this->configuration());
         $container->share(new Log($conf->get('logging', [])));
         $container->share(simple_cache_factory(...$conf->get('caching', [])));
-        $container->share($container->new(RegexRouter::class));
         $container->singleton(I18n::class, [I18nCatalog::new($conf)]);
+        $container->share($container->new(Router::class));
     }
 
     private function configuration(): Configuration

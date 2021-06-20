@@ -61,7 +61,6 @@ class App implements RequestHandlerInterface
             //  therefore the object attributes (and other properties) are lost
             $request  ??= $this->container->get(ServerRequestInterface::class);
             $response ??= $this->container->get(ResponseInterface::class);
-
             if ($this->handleException($request, $response, $exception)) {
                 goto output;
             }
@@ -271,11 +270,11 @@ class App implements RequestHandlerInterface
             $request,
             $response,
             (new HTTPError(
-                $status = ($ex->getCode() < 100 || $ex->getCode() > 599) ? HttpStatus::CONFLICT : $ex->getCode(),
+                ($ex->getCode() < 100 || $ex->getCode() > 599) ? HttpStatus::CONFLICT : $ex->getCode(),
                 title: $title,
                 detail: $ex->getMessage(),
                 previous: $ex
-            ))->setMember('error-code', $status));
+            )));
     }
 
     private function httpErrorHandler(

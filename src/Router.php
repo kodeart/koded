@@ -8,7 +8,6 @@ use function Koded\Stdlib\{json_serialize, json_unserialize};
 
 class Router
 {
-    public const ALLOWED_CHARS = '[a-z0-9\.\-\_]+';
     private const INDEX = 'router.index';
 
     private bool $cached;
@@ -91,17 +90,16 @@ class Router
             'resource' => \is_object($resource) ? '' : $resource,
         ];
         [$route['regex'], $identity] = $this->compileTemplate($template);
-        if (isset($this->identity[$identity])) {
-            throw (new HTTPConflict(
-                title: 'Invalid route',
-                instance: $template,
-                detail: \preg_replace(
-                    '/[' . PHP_EOL . ' ]+/', ' ', \sprintf(
-                        'Detected a multiple route definitions. The URI template for route "%s" 
-                        conflicts with already defined route "%s". Please fix your routes.',
-                        $template, $this->identity[$identity]))
-            ))->setMember('conflict-route', [$template => $this->identity[$identity]]);
-        }
+        isset($this->identity[$identity]) && throw (new HTTPConflict(
+            instance: $template,
+            title: 'Duplicate route',
+            detail: \preg_replace(
+                '/[' . PHP_EOL . ' ]+/', ' ', \sprintf(
+                    'Detected a multiple route definitions. The URI template for route "%s" 
+                    conflicts with already defined route "%s". Please fix your routes.',
+                    $template, $this->identity[$identity]))
+        ))->setMember('conflict-route', [$template => $this->identity[$identity]]);
+
         $route['identity'] = $identity;
         $this->identity[$identity] = $template;
         $this->index[$id] = $route;
@@ -113,14 +111,11 @@ class Router
 
     private function compileTemplate(string $template): array
     {
-        if (0 === $count = \substr_count($template, '{')) {
+        // Test for direct URI
+        if (false ===\str_contains($template, '{') && false ===\str_contains($template, '<')) {
             return ['~^' . \preg_quote($template, '/') . '$~ui', $template];
         }
-
-        [$regex, $identity, $options] = $this->replaceMatches(
-            $template, ...$this->processMatches($template, $count)
-        );
-
+        [$regex, $identity, $options] = $this->processMatches($template);
         try {
             $regex = '~^' . $regex . '$~' . $options;
 
@@ -130,66 +125,70 @@ class Router
 
         } catch (\Throwable $ex) {
             throw new HTTPConflict(
-                title: 'PCRE compilation error',
+                title: 'PCRE compilation error. ' . $ex->getMessage(),
                 detail: $ex->getMessage(),
                 instance: $template,
             );
         }
     }
 
-    private function processMatches(string $template, int $numberOfParams): array
+    private function processMatches(string $template): array
     {
-        $filters = ':str|:int|:float|:path|:uuid|:regex:.+'; // TODO path
-
-        $types   = [
-            ':str'   => '.+',
-            //':str'   => '(?:[0-9]*[a-z\.\_\-]|[a-z]+[0-9\.\_\-])[a-z0-9\.\_\-]*',
-            ':int'   => '\-?\d+',
+        $types = [
+            ':str' => '.+?', // non-greedy (stop at first match)
+            ':path' => '.+', // greedy
+            ':int' => '\-?\d+',
             ':float' => '(\-?\d*\.\d+)',
-            ':uuid'  => UUID::PATTERN,
-            ':path'  => '.+',
+            ':uuid' => UUID::PATTERN,
             ':regex' => '',
         ];
 
-        $replaced = \preg_match_all(
-            '~{(' . self::ALLOWED_CHARS . ")($filters)?}~iuU",
-            $template, $matches, PREG_SET_ORDER
-        );
+        // https://regex101.com/r/xeuMU3/2
+        preg_match_all('~{((?:[^{}]*|(?R))*)}~mx',
+                       $template,
+                       $parameters,
+                       PREG_SET_ORDER);
 
-        if ($numberOfParams !== $replaced) {
-            throw (new HTTPConflict(
-                title: 'Invalid route',
-                instance: $template,
-                detail: 'Use supported parameter types only'
-            ))->setMember('supported-types', \array_keys($types));
-        }
-        return [$matches, $types];
-    }
-
-    private function replaceMatches(
-        string $template,
-        array $matches,
-        array $types): array
-    {
         $options = '';
         $regex = $identity = $template;
-        foreach ($matches as $match) {
-            [$search, $replace, $filter] = $match + [2 => ':str'];
-            [, $type, $custom] = \explode(':', $filter) + [2 => '\w+'];
+        foreach ($parameters as [$parameter, $param]) {
+            [$name, $type, $filter] = explode(':', $param, 3) + [1 => 'str', 2 => ''];
+
+            ('regex' === $type && empty($filter)) && throw new HTTPConflict(
+                title: 'Invalid route. No regular expression provided',
+                detail: 'Provide a proper PCRE regular expression',
+                instance: $template,
+            );
+
+            isset($types[":$type"]) || throw (new HTTPConflict(
+                title: \sprintf('Invalid route parameter type %s', $type),
+                detail: 'Use one of the supported parameter types',
+                instance: $template,
+            ))->setMember('supported-types', \array_keys($types));
+
+            $expr = $filter ?: $types[":$type"];
+
+            $regex = \str_replace($parameter, "(?P<$name>$expr)", $regex);
+            $identity = \str_replace($parameter, $types[":$type"] ? ":$type" : ''.$filter, $identity);
             if ('str' === $type || 'path' === $type) {
                 $options = 'ui';
             }
-            $regex = \str_replace($search, "(?P<$replace>".($types[$filter] ?? $custom).')', $regex);
-            $identity = \str_replace($search, $filter, $identity);
         }
+        /*
+         * [NOTE]: Replace :path with :str. The concept of "path" is irrelevant
+         *  because the single parameters are matched as non-greedy (first occurrence)
+         *  and the path is greedy matched (as many as possible). The implementation
+         *  cannot distinguish between both types, therefore limit the types to :str
+         *  and disallow routes with /:str/:path and /:str/:str identities.
+         *
+         *  Also check for multiple :path parameters in the URI template.
+         */
         $identity = \str_replace(':path', ':str', $identity, $count);
-        if ($count > 1) {
-            throw new HTTPConflict(
-                title: 'Invalid route',
-                detail: 'Only one :path type is allowed as parameter',
-                instance: $template,
-            );
-        }
+        if ($count > 1) throw new HTTPConflict(
+            title: 'Invalid route. Multiple path parameters in the route template detected',
+            detail: 'Only one ":path" type is allowed as URI parameter',
+            instance: $template,
+        );
         return [$regex, $identity, $options];
     }
 }

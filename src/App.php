@@ -61,8 +61,13 @@ class App implements RequestHandlerInterface
             $request  ??= $this->container->get(ServerRequestInterface::class);
             $response ??= $this->container->get(ResponseInterface::class);
             $this->container->share($request);
-            $this->handleException($request, $response, $exception) || throw $exception;
-        } finally {
+            //$this->handleException($request, $response, $exception) || throw $exception;
+            if ($this->handleException($request, $response, $exception)) {
+                $this->container->share($response);
+                return ($this->container)($this->renderer);
+            }
+            throw $exception;
+        //} finally {
             // Share the response object for (custom) renderers
             //$this->container->share($response);
             //return ($this->container)($this->renderer);

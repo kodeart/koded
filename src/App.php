@@ -50,18 +50,22 @@ class App implements RequestHandlerInterface
             $this->responder = $this->getResponder($request, $uriTemplate);
             $this->initialize($uriTemplate);
             $response = $this->handle($request);
+
+            output:
+            // Share the response object for (custom) renderers
+            $this->container->share($response);
+            return ($this->container)($this->renderer);
         } catch (\Throwable $exception) {
             // [NOTE]: On exception, the state of the immutable request object
             //  is not updated through the middleware "request phase",
             //  therefore the object attributes (and other properties) are lost
             $request  ??= $this->container->get(ServerRequestInterface::class);
             $response ??= $this->container->get(ResponseInterface::class);
-            $this->container->share($request);
-            $this->handleException($request, $response, $exception) || throw $exception;
-        } finally {
-            // Share the response object for (custom) renderers
-            $this->container->share($response);
-            return ($this->container)($this->renderer);
+
+            if ($this->handleException($request, $response, $exception)) {
+                goto output;
+            }
+            throw $exception;
         }
     }
 
@@ -267,11 +271,11 @@ class App implements RequestHandlerInterface
             $request,
             $response,
             (new HTTPError(
-                ($ex->getCode() < 100 || $ex->getCode() > 599) ? HttpStatus::CONFLICT : $ex->getCode(),
+                $status = ($ex->getCode() < 100 || $ex->getCode() > 599) ? HttpStatus::CONFLICT : $ex->getCode(),
                 title: $title,
                 detail: $ex->getMessage(),
                 previous: $ex
-            ))->setMember('error-code', $ex->getCode()));
+            ))->setMember('error-code', $status));
     }
 
     private function httpErrorHandler(

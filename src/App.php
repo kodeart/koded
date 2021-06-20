@@ -14,7 +14,7 @@ use Whoops\Run as WoopsRunner;
 
 (new WoopsRunner)
     ->prependHandler(new PrettyPageHandler)
-    //->prependHandler(new JsonResponseHandler)
+    ->prependHandler(new JsonResponseHandler)
     ->register();
 
 class App implements RequestHandlerInterface

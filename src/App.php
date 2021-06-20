@@ -36,9 +36,9 @@ class App implements RequestHandlerInterface
         \date_default_timezone_set('UTC');
         $this->container = new DIContainer(new Module($config), ...$modules);
         $this->middleware = [new GzipMiddleware, ...$middleware, CorsMiddleware::class];
-        $this->useErrorHandler(HTTPError::class, 'static::httpErrorHandler');
-        $this->useErrorHandler(\Exception::class, 'static::phpErrorHandler');
-        $this->useErrorHandler(\Error::class, 'static::phpErrorHandler');
+        $this->withErrorHandler(HTTPError::class, 'static::httpErrorHandler');
+        $this->withErrorHandler(\Exception::class, 'static::phpErrorHandler');
+        $this->withErrorHandler(\Error::class, 'static::phpErrorHandler');
     }
 
     public function __invoke(): mixed
@@ -50,7 +50,6 @@ class App implements RequestHandlerInterface
             $this->responder = $this->getResponder($request, $uriTemplate);
             $this->initialize($uriTemplate);
             $response = $this->handle($request);
-
             output:
             // Share the response object for (custom) renderers
             $this->container->share($response);
@@ -126,7 +125,7 @@ class App implements RequestHandlerInterface
         return $this;
     }
 
-    public function useErrorHandler(string $type, callable|null $handler): App
+    public function withErrorHandler(string $type, callable|null $handler): App
     {
         if (false === \is_a($type, \Throwable::class, true)) {
             throw new \TypeError('"type" must be an exception type', HttpStatus::CONFLICT);

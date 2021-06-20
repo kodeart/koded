@@ -114,7 +114,7 @@ class App implements RequestHandlerInterface
         array $routes,
         array $middleware = []): App
     {
-        foreach ($routes as $i => $route) {
+        foreach ($routes as $route) {
             // (template, resource, middleware, explicit)
             $route += ['', '', [], false];
             [$uriTemplate, $resource, $mw, $explicit] = $route;
@@ -134,6 +134,12 @@ class App implements RequestHandlerInterface
                                  ' the given exception type', HttpStatus::NOT_IMPLEMENTED);
         }
         $this->handlers[$type] = $handler;
+        return $this;
+    }
+
+    public function withoutErrorHandler(string $type): App
+    {
+        unset($this->handlers[$type]);
         return $this;
     }
 

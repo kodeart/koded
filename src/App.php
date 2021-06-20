@@ -41,7 +41,7 @@ class App implements RequestHandlerInterface
         $this->useErrorHandler(\Error::class, 'static::phpErrorHandler');
     }
 
-    public function __invoke(): mixed
+    public function __invoke()//: mixed
     {
         try {
             $request = $this->container->new(ServerRequestInterface::class)

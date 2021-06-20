@@ -50,6 +50,10 @@ class App implements RequestHandlerInterface
             $this->responder = $this->getResponder($request, $uriTemplate);
             $this->initialize($uriTemplate);
             $response = $this->handle($request);
+
+            $this->container->share($response);
+            return ($this->container)($this->renderer);
+
         } catch (\Throwable $exception) {
             // [NOTE]: On exception, the state of the immutable request object
             //  is not updated through the middleware "request phase",
@@ -57,11 +61,11 @@ class App implements RequestHandlerInterface
             $request  ??= $this->container->get(ServerRequestInterface::class);
             $response ??= $this->container->get(ResponseInterface::class);
             $this->container->share($request);
-            $this->handleException($request, $response, $exception) ?: throw $exception;
+            $this->handleException($request, $response, $exception) || throw $exception;
         } finally {
             // Share the response object for (custom) renderers
-            $this->container->share($response);
-            return ($this->container)($this->renderer);
+            //$this->container->share($response);
+            //return ($this->container)($this->renderer);
         }
     }
 

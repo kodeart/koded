@@ -57,6 +57,7 @@ final class Module implements DIModule
         }
         @$factory->fromEnvFile('.env');
         foreach ($factory->get('autoloaders', []) as $autoloader) {
+            /** @noinspection PhpIncludeInspection */
             include_once $autoloader;
         }
         return $factory;

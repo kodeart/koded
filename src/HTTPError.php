@@ -147,7 +147,7 @@ class HTTPError extends \RuntimeException implements KodedHTTPError
             'instance' => $this->instance,
             'detail'   => $this->detail ?: StatusCode::description($status),
             'title'    => $this->message,
-            'type'     => $this->type ?: "https://httpstatuses.com/{$status}",
+            'type'     => $this->type ?: "https://httpstatuses.com/$status",
         ], $this->members);
     }
 

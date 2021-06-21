@@ -27,12 +27,12 @@ class App implements RequestHandlerInterface
     private DIContainer $container;
 
     public function __construct(
-        ?array $modules = [],
+        array|null $modules = [],
         Configuration|string|null $config = '',
         private mixed $renderer = 'start_response',
         private array $middleware = [])
     {
-        // There is only UTC, everything else is local
+        // There is only UTC. Move around this idea.
         \date_default_timezone_set('UTC');
         $this->container = new DIContainer(new Module($config), ...$modules);
         $this->middleware = [new GzipMiddleware, ...$middleware, CorsMiddleware::class];

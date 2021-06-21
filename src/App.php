@@ -3,7 +3,7 @@
 namespace Koded\Framework;
 
 use Koded\DIContainer;
-use Koded\Framework\Middleware\{CorsMiddleware, GzipMiddleware};
+use Koded\Framework\Middleware\{CallableMiddleware, CorsMiddleware, GzipMiddleware};
 use Koded\Http\Interfaces\{HttpStatus, Request};
 use Koded\Stdlib\Configuration;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
@@ -170,17 +170,14 @@ class App implements RequestHandlerInterface
         $this->middleware = false === $explicit ? [...$this->middleware, ...$middleware] : $middleware;
         foreach ($this->middleware as $middleware) {
             $class = 'string' === \get_debug_type($middleware) ? $middleware : \get_class($middleware);
-            if ($middleware instanceof MiddlewareInterface) {
-                $this->stack[$class] = $middleware;
-            } elseif (\is_a($middleware, MiddlewareInterface::class, true)) {
-                $this->stack[$class] = $this->container->new($middleware);
-            } elseif (\is_callable($middleware)) {
-                $this->stack[$class] = new Middleware\CallableMiddleware($middleware);
-            } else {
-                throw new \InvalidArgumentException(\sprintf('Middleware "%s" must implement %s',
-                    $class, MiddlewareInterface::class)
-                );
-            }
+            $this->stack[$class] = match (true) {
+                $middleware instanceof MiddlewareInterface => $middleware,
+                \is_a($middleware, MiddlewareInterface::class, true) => $this->container->new($middleware),
+                \is_callable($middleware) => new CallableMiddleware($middleware),
+                default => throw new \InvalidArgumentException(
+                    \sprintf('Middleware "%s" must implement %s', $class, MiddlewareInterface::class)
+                )
+            };
         }
         $this->stack = \array_values($this->stack);
     }

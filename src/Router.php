@@ -81,13 +81,10 @@ class Router
         object|string $resource,
         string $id): array
     {
-        $route = [
-            'regex' => '',
-            'identity' => '',
-            'template' => $template,
+        $route = $this->compileTemplate($template) + [
             'resource' => \is_object($resource) ? '' : $resource,
+            'template' => $template,
         ];
-        [$route['regex'], $route['identity']] = $this->compileTemplate($template);
         $this->index[$id] = $route;
         if (empty($route['resource'])) {
             $this->callback[$id] = ['resource' => $resource] + $route;
@@ -99,7 +96,11 @@ class Router
     {
         // Test for direct URI
         if (false ===\str_contains($template, '{') && false ===\str_contains($template, '<')) {
-            return ['~^' . \preg_quote($template, '/') . '$~ui', $template];
+            $this->identity[$template] = $template;
+            return [
+                'regex' => '~^' . $template . '$~ui',
+                'identity' => $template
+            ];
         }
         $options = '';
         $regex = $identity = $template;
@@ -120,7 +121,7 @@ class Router
 
         foreach ($parameters as [$parameter, $param]) {
             [$name, $type, $filter] = explode(':', $param, 3) + [1 => 'str', 2 => ''];
-            $this->assertSupportedType($types, $type, $filter, $template);
+            $this->assertSupportedType($template, $types, $type, $filter);
             $expr = $filter ?: $types[$type];
             $regex = \str_replace($parameter, '(?P<' . $name .'>' . $expr . ')', $regex);
             $identity = \str_replace($parameter, $types[$type] ? ":$type" : $filter, $identity);
@@ -134,13 +135,17 @@ class Router
          *  and disallow routes with /:str/:path and /:str/:str identities.
          */
         $identity = \str_replace(':path', ':str', $identity, $paths);
-        $this->assertIdentityAndPaths($identity, $template, $paths);
+        $this->assertIdentityAndPaths($template, $identity, $paths);
+        $this->identity[$identity] = $template;
 
         try {
             $regex = '~^' . $regex . '$~' . $options;
             // TODO: Quick test for duplicate subpattern names
             \preg_match($regex, '/');
-            return [$regex, $identity];
+            return [
+                'regex' => $regex,
+                'identity' => $identity
+            ];
         } catch (\Throwable $ex) {
             throw new HTTPConflict(
                 title: 'PCRE compilation error. ' . $ex->getMessage(),
@@ -150,7 +155,11 @@ class Router
         }
     }
 
-    private function assertSupportedType(array $types, string $type, string $filter, string $template): void
+    private function assertSupportedType(
+        string $template,
+        array $types,
+        string $type,
+        string $filter): void
     {
         ('regex' === $type && empty($filter)) && throw new HTTPConflict(
             title: 'Invalid route. No regular expression provided',
@@ -164,7 +173,10 @@ class Router
         ))->setMember('supported-types', \array_keys($types));
     }
 
-    private function assertIdentityAndPaths(mixed $identity, string $template, int $paths): void
+    private function assertIdentityAndPaths(
+        string $template,
+        string $identity,
+        int $paths): void
     {
         isset($this->identity[$identity]) && throw (new HTTPConflict(
             instance: $template,
@@ -180,6 +192,5 @@ class Router
             detail: 'Only one "path" type is allowed as URI parameter',
             instance: $template,
         );
-        $this->identity[$identity] = $template;
     }
 }

@@ -170,9 +170,9 @@ class Router
             instance: $template,
             title: 'Duplicate route',
             detail: \preg_replace('/[' . PHP_EOL . ' ]+/', ' ', \sprintf(
-                        'Detected a multiple route definitions. The URI template for route "%s" 
+                'Detected a multiple route definitions. The URI template for route "%s" 
                 conflicts with already defined route "%s". Please fix your routes.',
-                        $template, $this->identity[$identity]))
+                $template, $this->identity[$identity]))
         ))->setMember('conflict-route', [$template => $this->identity[$identity]]);
 
         if ($paths > 1) throw new HTTPConflict(

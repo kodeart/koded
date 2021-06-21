@@ -122,8 +122,7 @@ class Router
         foreach ($parameters as [$parameter, $param]) {
             [$name, $type, $filter] = explode(':', $param, 3) + [1 => 'str', 2 => ''];
             $this->assertSupportedType($template, $types, $type, $filter);
-            $expr = $filter ?: $types[$type];
-            $regex = \str_replace($parameter, '(?P<' . $name .'>' . $expr . ')', $regex);
+            $regex = \str_replace($parameter, '(?P<' . $name .'>' . ($filter ?: $types[$type]) . ')', $regex);
             $identity = \str_replace($parameter, $types[$type] ? ":$type" : $filter, $identity);
             ('str' === $type || 'path' === $type) && $options = 'ui';
         }
@@ -132,7 +131,7 @@ class Router
          *  because the single parameters are matched as non-greedy (first occurrence)
          *  and the path is greedy matched (as many as possible). The implementation
          *  cannot distinguish between both types, therefore limit the types to :str
-         *  and disallow routes with /:str/:path and /:str/:str identities.
+         *  and disallow routes with miltiple :path types.
          */
         $identity = \str_replace(':path', ':str', $identity, $paths);
         $this->assertIdentityAndPaths($template, $identity, $paths);
@@ -181,10 +180,10 @@ class Router
         isset($this->identity[$identity]) && throw (new HTTPConflict(
             instance: $template,
             title: 'Duplicate route',
-            detail: \preg_replace('/[' . PHP_EOL . ' ]+/', ' ', \sprintf(
-                'Detected a multiple route definitions. The URI template for route "%s" 
-                conflicts with already defined route "%s". Please fix your routes.',
-                $template, $this->identity[$identity]))
+            detail: \sprintf(
+                'Detected a multiple route definitions. The URI template ' .
+                'for "%s" conflicts with an already registered route "%s".',
+                $template, $this->identity[$identity])
         ))->setMember('conflict-route', [$template => $this->identity[$identity]]);
 
         if ($paths > 1) throw new HTTPConflict(

@@ -263,12 +263,12 @@ class App implements RequestHandlerInterface
         $this->composeErrorResponse(
             $request,
             $response,
-            (new HTTPError(
+            new HTTPError(
                 ($ex->getCode() < 100 || $ex->getCode() > 599) ? HttpStatus::CONFLICT : $ex->getCode(),
                 title: $title,
                 detail: $ex->getMessage(),
                 previous: $ex
-            )));
+            ));
     }
 
     private function httpErrorHandler(

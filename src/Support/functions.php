@@ -23,7 +23,7 @@ function start_response(Request $request, Response $response): void
         $media = $request->getAttribute('@media') ?? client_prefers($request);
         // [NOTE]: Default browsers have weird Accept headers and
         // this renderer overrules the default XML and/or HTML type
-        // by preferring JSON, hence forcing the response for REsT apps.
+        // by preferring JSON, hence forcing the response for ReST apps.
         if (\str_contains($media, 'html')) {
             $media = 'application/json';
         }
@@ -71,17 +71,17 @@ function default_serialize_error(
     HTTPError $exception): ResponseInterface
 {
     $exception->setMember('instance', $request->getUri()->getPath());
-    if (\str_contains(client_prefers($request), 'xml')) {
-        $response = $response
-            ->withHeader('Content-Type', 'application/problem+xml')
-            ->withBody(create_stream($exception->toXml()));
-    } else {
-        $response = $response
-            ->withHeader('Content-Type', 'application/problem+json')
-            ->withBody(create_stream($exception->toJson()));
-    }
-    return $response
+    $response = $response
         ->withHeader('X-Response-Error', $response->getStatusCode() . ' ' . $response->getReasonPhrase())
         ->withHeader('Cache-Control', 'no-cache, max-age=0')
         ->withHeader('Connection', 'close');
+
+    if (\str_contains(client_prefers($request), 'xml')) {
+        return $response
+            ->withHeader('Content-Type', 'application/problem+xml')
+            ->withBody(create_stream($exception->toXml()));
+    }
+    return $response
+        ->withHeader('Content-Type', 'application/problem+json')
+        ->withBody(create_stream($exception->toJson()));
 }

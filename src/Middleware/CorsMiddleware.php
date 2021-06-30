@@ -23,7 +23,7 @@ class CorsMiddleware implements MiddlewareInterface
      * HTTP/1.1 Server-driven negotiation headers
      * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Content_negotiation
      */
-    private static array $simpleHeaders = [
+    private const SIMPLE_HEADERS = [
         'accept' => true,
         'accept-language' => true,
         'content-language' => true,
@@ -56,7 +56,7 @@ class CorsMiddleware implements MiddlewareInterface
     {
         $this->isDisabled = (bool)$config->get('cors.disable');
         $this->origin = \trim($config->get('cors.origin'));
-        $this->methods = \strtoupper($config->get('cors.methods'));
+        $this->methods = \strtoupper(\trim($config->get('cors.methods')));
         $this->headers = \trim($config->get('cors.headers'));
         $this->expose = \trim($config->get('cors.expose'));
         $this->maxAge = (int)$config->get('cors.maxAge');
@@ -170,13 +170,11 @@ class CorsMiddleware implements MiddlewareInterface
         ServerRequestInterface $request,
         bool $hasCredentials): string
     {
-        if ($this->methods) {
-            $methods = $this->methods;
-        } else if ($methods = $request->getAttribute('@http_methods')) {
-            $methods = \join(',', $methods);
-        } else {
-            $methods = 'HEAD,OPTIONS';
-        }
+        $methods = match (true) {
+            !empty($this->methods) => $this->methods,
+            !empty($method = $request->getAttribute('@http_methods')) => \join(',', $method),
+            default => 'HEAD,OPTIONS',
+        };
         if ($hasCredentials && \str_contains($methods, '*')) {
             return 'GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS';
         }
@@ -195,7 +193,7 @@ class CorsMiddleware implements MiddlewareInterface
         }
         $result = [];
         foreach (\preg_split('/, */', $headers) as $header) {
-            if (isset(static::$simpleHeaders[\strtolower($header)])) {
+            if (isset(self::SIMPLE_HEADERS[\strtolower($header)])) {
                 continue;
             }
             $result[] = $header;

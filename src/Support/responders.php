@@ -38,8 +38,11 @@ function head_response(string $uri, array $methods): callable
         if (false === \in_array(Request::GET, $methods)) {
             return (new ServerResponse)->withHeader('Allow', $methods);
         }
-        $type = \function_exists('curl_init') ? ClientFactory::CURL : ClientFactory::PHP;
-        $get = (new ClientFactory($type))
+        $get = (new ClientFactory(
+            \function_exists('\curl_init')
+                ? ClientFactory::CURL
+                : ClientFactory::PHP
+        ))
             ->get($uri, ['Connection' => 'close'])
             ->timeout(5)
             ->read()
@@ -70,12 +73,10 @@ function head_response(string $uri, array $methods): callable
  */
 function create_options_response(array $methods): callable
 {
-    return function() use ($methods): ResponseInterface {
-        return (new HttpFactory)->createResponse(HttpStatus::NO_CONTENT)
-            ->withHeader('Cache-Control', 'no-cache, max-age=0')
-            ->withHeader('Allow', \join(',', $methods))
-            ->withHeader('Content-Type', 'text/plain');
-    };
+    return fn() => (new HttpFactory)->createResponse(HttpStatus::NO_CONTENT)
+        ->withHeader('Cache-Control', 'no-cache, max-age=0')
+        ->withHeader('Allow', \join(',', $methods))
+        ->withHeader('Content-Type', 'text/plain');
 }
 
 /**

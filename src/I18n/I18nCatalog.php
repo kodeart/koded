@@ -9,7 +9,7 @@ abstract class I18nCatalog
     public const DEFAULT_LOCALE = 'en_US';
 
     protected const DEFAULT_CATALOG = DefaultCatalog::class;
-    protected const DEFAULT_FORMATTER = VsprintfFormatter::class;
+    protected const DEFAULT_FORMATTER = DefaultFormatter::class;
     protected const DEFAULT_DOMAIN = 'messages';
 
     protected I18nFormatter $formatter;

@@ -231,7 +231,7 @@ class App implements RequestHandlerInterface
         return true;
     }
 
-    private function findErrorHandler($ex): ?callable
+    private function findErrorHandler($ex): callable|null
     {
         $parents = [\get_debug_type($ex)];
         // Iterate the class inheritance chain

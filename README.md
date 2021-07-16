@@ -1,7 +1,7 @@
 Koded - RMR Micro Framework
 ===========================
 
-[![CI][koded-ci-status]][koded-ci-package]
+[![CI](https://github.com/kodeart/koded/actions/workflows/ci.yml/badge.svg)](https://github.com/kodeart/koded/actions/workflows/ci.yml)
 
 
     Freedom to design your project - your way.
@@ -44,9 +44,6 @@ Read the docs at [Koded Framework documentation][docs] page.
 [php-link]: https://php.net/
 [license-status]: https://img.shields.io/badge/License-BSD%203--Clause-blue.svg
 [license-link]: https://github.com/kodeart/koded/LICENSE
-
-[koded-ci-status]: https://github.com/kodeart/koded/actions/workflows/ci.yml/badge.svg
-[koded-ci-package]: https://github.com/kodeart/koded/actions/workflows/ci.yml
 
 [koded-container]: https://github.com/kodedphp/container
 [koded-container-status]: https://img.shields.io/packagist/v/koded/container.svg

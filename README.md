@@ -24,11 +24,11 @@ Built-in functionality:
 
 | Project                      | Status | Description
 |-----------------------------:|--------|---------------------------------------------|
-| [container](koded-container) | [![koded-container-status]][koded-container-package] | DI container library (PSR-11)
-| [http](koded-http)           | [![koded-http-status]][koded-http-package]           | HTTP library (PSR-7, 17, 18)
-| [cache](cache-simple)        | [![cache-simple-status]][cache-simple-package]       | Caching library (PSR-16)
-| [session](koded-session)     | [![koded-session-status]][koded-session-package]     | Session library
-| [logging](koded-logging)     | [![koded-logging-status]][koded-logging-package]     | Log facility (PSR-3)
+| [container][koded-container] | [![koded-container-status]][koded-container-package] | DI container library (PSR-11)
+| [http][koded-http]           | [![koded-http-status]][koded-http-package]           | HTTP library (PSR-7, 17, 18)
+| [cache][cache-simple]        | [![cache-simple-status]][cache-simple-package]       | Caching library (PSR-16)
+| [session][koded-session]     | [![koded-session-status]][koded-session-package]     | Session library
+| [logging][koded-logging]     | [![koded-logging-status]][koded-logging-package]     | Log facility (PSR-3)
 
 
 Documentation
@@ -60,7 +60,7 @@ Read the docs at [Koded Framework documentation][docs] page.
 [cache-simple-status]: https://img.shields.io/packagist/v/koded/cache-simple.svg
 [cache-simple-package]: https://packagist.org/packages/koded/simple-cache
 
-[koded-sesion]: https://github.com/kodedphp/session
+[koded-session]: https://github.com/kodedphp/session
 [koded-session-status]: https://img.shields.io/packagist/v/koded/session.svg
 [koded-session-package]: https://packagist.org/packages/koded/session
 

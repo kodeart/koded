@@ -3,11 +3,12 @@
 namespace Koded\Framework;
 
 use Koded\{DIContainer, DIModule};
-use Koded\Framework\Auth\{AuthBackend, AuthProcessor, SessionAuthBackend, BearerAuthProcessor};
+use Koded\Framework\Auth\{AuthBackend, AuthProcessor, BearerAuthProcessor, SessionAuthBackend};
 use Koded\Framework\I18n\{I18n, I18nCatalog};
 use Koded\Http\{ServerRequest, ServerResponse};
 use Koded\Http\Interfaces\{Request, Response};
 use Koded\Logging\Log;
+use Koded\Logging\Processors\Cli;
 use Koded\Stdlib\{Config, Configuration, Immutable};
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Log\LoggerInterface;
@@ -18,34 +19,34 @@ final class Module implements DIModule
 {
     private const ENV_KEY = '__KODED_CONFIG';
 
-    public function __construct(private Configuration|string|null $configuration) {}
+    public function __construct(private Configuration|string $configuration) {}
 
     public function configure(DIContainer $container): void
     {
         $container->named('$errorSerializer', 'default_serialize_error');
-        $container->bind(Request::class, ServerRequest::class);
-        $container->bind(ServerRequestInterface::class, ServerRequest::class);
-        $container->bind(Response::class, ServerResponse::class);
-        $container->bind(ResponseInterface::class, ServerResponse::class);
-        $container->bind(Configuration::class, /* defer */);
-        $container->bind(CacheInterface::class, /* defer */);
+        $container->bind(Request::class,         /* defer */);
+        $container->bind(Response::class,        /* defer */);
+        $container->bind(Configuration::class,   /* defer */);
+        $container->bind(CacheInterface::class,  /* defer */);
         $container->bind(LoggerInterface::class, /* defer */);
+        $container->bind(ServerRequestInterface::class, ServerRequest::class);
+        $container->bind(ResponseInterface::class, ServerResponse::class);
+        // Core instances
+        $container->share($conf = $this->configuration());
+        $container->share(new Log(...$conf->get('logging', [])));
+        $container->share(simple_cache_factory(...$conf->get('caching', [])));
+        $container->share(new I18n(I18nCatalog::new($conf)));
+        $container->share($container->new(Router::class));
         // Default authentication
         $container->bind(AuthBackend::class, SessionAuthBackend::class);
         $container->bind(AuthProcessor::class, BearerAuthProcessor::class);
-        // Core instances
-        $container->share($conf = $this->configuration());
-        $container->share(new Log($conf->get('logging', [])));
-        $container->share(simple_cache_factory(...$conf->get('caching', [])));
-        $container->singleton(I18n::class, [I18nCatalog::new($conf)]);
-        $container->share($container->new(Router::class));
     }
 
     private function configuration(): Configuration
     {
         $factory = new Config('', $this->defaultConfiguration());
-        if (!$this->configuration) {
-            return $factory->fromEnvFile('.env');
+        if (empty($this->configuration)) {
+            goto load;
         }
         if (\is_a($this->configuration, Configuration::class, true)) {
             $factory->fromObject($this->configuration);
@@ -55,9 +56,9 @@ final class Module implements DIModule
             $factory->fromEnvVariable(self::ENV_KEY);
             $factory->rootPath = \dirname($this->configuration);
         }
+        load:
         @$factory->fromEnvFile('.env');
         foreach ($factory->get('autoloaders', []) as $autoloader) {
-            /** @noinspection PhpIncludeInspection */
             include_once $autoloader;
         }
         return $factory;
@@ -67,16 +68,6 @@ final class Module implements DIModule
     {
         return new Immutable(
             [
-                'logging' => [
-                    'loggers' => [
-                        [
-                            'class' => \Koded\Logging\Processors\Cli::class,
-                            'format' => '[levelname] message',
-                            'levels' => Log::INFO
-                        ]
-                    ]
-                ],
-
                 // i18n settings
                 //'translation.dir' => __DIR__ . '/../locales',
 
@@ -87,7 +78,17 @@ final class Module implements DIModule
                 'cors.headers' => '',
                 'cors.expose' => 'Authorization, X-Forwarded-With',
                 'cors.maxAge' => 0,
-            ]
-        );
+
+                'logging' => [
+                    [
+                        [
+                            'class' => Cli::class,
+                            'format' => '[levelname] message',
+                            'levels' => Log::INFO
+                        ]
+                    ],
+                    'dateformat' => 'd-m-Y H:i:s'
+                ],
+            ]);
     }
 }

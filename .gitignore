@@ -6,6 +6,8 @@ cache/
 vendor/
 .DS_Store/
 .idea/
+.vscode/
+Thumbs.db
 composer.lock
 *.phar
 *.cache

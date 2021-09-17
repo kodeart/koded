@@ -72,7 +72,8 @@ function default_serialize_error(
 {
     $exception->setMember('instance', $request->getUri()->getPath());
     $response = $response
-        ->withHeader('X-Response-Error', $response->getStatusCode() . ' ' . $response->getReasonPhrase())
+        ->withHeader('X-Error-Status', \join(' ', [$response->getStatusCode(), $response->getReasonPhrase()]))
+        ->withHeader('X-Error-Message', \str_replace(["\n", "\r", "\t"], ' ', $exception->getDetail()))
         ->withHeader('Cache-Control', 'no-cache, max-age=0')
         ->withHeader('Connection', 'close');
 

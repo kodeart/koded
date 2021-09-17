@@ -53,10 +53,11 @@ function head_response(string $uri, array $methods): callable
             return $get;
         }
         // If GET request fails, it returns the Allow header
-        // with the failure reason in the "X-Response-Error" header
+        // with the failure reason in the "X-Response-*" headers
         \error_log($get->getBody()->getContents());
         return $get
-            ->withHeader('X-Response-Error', $get->getStatusCode() . ' ' . $get->getReasonPhrase())
+            ->withHeader('X-Error-Status', \join(' ', [$get->getStatusCode(), $get->getReasonPhrase()]))
+            ->withHeader('X-Error-Message', \str_replace(["\n", "\r", "\t"], ' ', $get->getBody()))
             ->withStatus(HttpStatus::OK)
             ->withBody(create_stream(null));
     };

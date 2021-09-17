@@ -5,17 +5,17 @@
   "license": "BSD-3-Clause",
   "description": "Micro framework for ReST apps",
   "keywords": [
-    "koded",
+    "rest",
     "micro",
     "framework"
   ],
   "require": {
     "php": "^8",
     "psr/http-server-middleware": "^1",
-    "koded/container": "^2",
+    "koded/container": "^2.2",
     "koded/cache-simple": "^3",
-    "koded/http": "^3",
-    "koded/logging": "^3",
+    "koded/http": "dev-master as 3",
+    "koded/logging": "dev-defer",
     "koded/session": "2.*",
     "filp/whoops": "^2.7",
     "ext-zlib": "*",
@@ -34,6 +34,7 @@
       "docs/",
       "locales/",
       "public/",
+      "site/",
       "tests/"
     ],
     "files": [

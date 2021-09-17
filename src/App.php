@@ -63,9 +63,7 @@ class App implements RequestHandlerInterface
         // Share the response object for (custom) renderers
         $this->container->share($response);
         // [OPTIMIZATION]: Consider optimizing this
-        if ($response::class !== $this->container->get(Response::class)) {
-            $this->container->bind(Response::class, $response::class);
-        }
+        $this->container->bind(Response::class, $response::class);
         return ($this->container)($this->renderer);
     }
 

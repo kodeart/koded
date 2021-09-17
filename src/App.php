@@ -60,12 +60,12 @@ class App implements RequestHandlerInterface
                 throw $exception;
             }
         }
+        // Share the response object for (custom) renderers
+        $this->container->share($response);
         // [OPTIMIZATION]: Consider optimizing this
         if ($response::class !== $this->container->get(Response::class)) {
             $this->container->bind(Response::class, $response::class);
         }
-        // Share the response object for (custom) renderers
-        $this->container->share($response);
         return ($this->container)($this->renderer);
     }
 

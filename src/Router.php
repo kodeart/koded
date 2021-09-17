@@ -31,8 +31,8 @@ class Router
 
     public function route(string $template, object|string $resource): void
     {
-        \assert(\str_starts_with($template, '/'), 'URI template must begin with "/"');
-        \assert(!\str_contains($template, '//'), 'URI template has duplicate slashes');
+        \assert('/' === $template[0], 'URI template must begin with "/"');
+        \assert(false === \str_contains($template, '//'), 'URI template has duplicate slashes');
 
         $id = $this->id($template);
         if ($this->index[$id] ?? false) {
@@ -95,10 +95,11 @@ class Router
     private function compileTemplate(string $template): array
     {
         // Test for direct URI
-        if (false ===\str_contains($template, '{') && false ===\str_contains($template, '<')) {
+        if (false === \str_contains($template, '{') &&
+            false === \str_contains($template, '<')) {
             $this->identity[$template] = $template;
             return [
-                'regex' => '~^' . $template . '$~ui',
+                'regex' => "~^$template\$~ui",
                 'identity' => $template
             ];
         }
@@ -131,14 +132,14 @@ class Router
          *  because the single parameters are matched as non-greedy (first occurrence)
          *  and the path is greedy matched (as many as possible). The implementation
          *  cannot distinguish between both types, therefore limit the types to :str
-         *  and disallow routes with miltiple :path types.
+         *  and disallow routes with multiple :path types.
          */
         $identity = \str_replace(':path', ':str', $identity, $paths);
         $this->assertIdentityAndPaths($template, $identity, $paths);
         $this->identity[$identity] = $template;
 
         try {
-            $regex = '~^' . $regex . '$~' . $options;
+            $regex = "~^$regex\$~$options";
             // TODO: Quick test for duplicate subpattern names
             \preg_match($regex, '/');
             return [

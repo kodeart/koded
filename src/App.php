@@ -20,22 +20,23 @@ use Whoops\Run as WoopsRunner;
 class App implements RequestHandlerInterface
 {
     private int $offset = 0;
+    /** @var array<int, MiddlewareInterface> */
     private array $stack = [];
     private array $explicit = [];
-    private mixed $responder;
+    /** @var array<string, callable|null> */
     private array $handlers = [];
     private DIContainer $container;
+    private mixed $responder;
 
     public function __construct(
-        array|null $modules = [],
-        Configuration|string|null $config = '',
+        array $modules = [],
+        Configuration|string $config = '',
         private mixed $renderer = 'start_response',
         private array $middleware = [])
     {
-        // There is only UTC. Move around this idea.
         \date_default_timezone_set('UTC');
         $this->container = new DIContainer(new Module($config), ...$modules);
-        $this->middleware = [new GzipMiddleware, ...$middleware, CorsMiddleware::class];
+        $this->middleware = [new GzipMiddleware, CorsMiddleware::class, ...$middleware];
         $this->withErrorHandler(HTTPError::class, 'static::httpErrorHandler');
         $this->withErrorHandler(\Exception::class, 'static::phpErrorHandler');
         $this->withErrorHandler(\Error::class, 'static::phpErrorHandler');
@@ -55,7 +56,7 @@ class App implements RequestHandlerInterface
             //  objects are not updated through the middleware "request phase",
             //  therefore the object attributes (and other properties) are lost
             $response = $this->container->get(ResponseInterface::class);
-            if (!$this->handleException($request, $response, $exception)) {
+            if (false === $this->handleException($request, $response, $exception)) {
                 throw $exception;
             }
         }
@@ -80,12 +81,12 @@ class App implements RequestHandlerInterface
     }
 
     /**
-     * Create and run a route for URI.
+     * Create a route for URI.
      *
-     * @param string        $uriTemplate
-     * @param object|string $resource
-     * @param array         $middleware [optional]
-     * @param bool          $explicit [optional]
+     * @param string                            $uriTemplate The URI template
+     * @param object|string                     $resource    A PHP callable
+     * @param array<MiddlewareInterface|string> $middleware  [optional] List of middlewares for this route
+     * @param bool                              $explicit    [optional] If TRUE replace the global middlewares
      * @return self
      */
     public function route(
@@ -101,11 +102,11 @@ class App implements RequestHandlerInterface
 
     /**
      * Group multiple routes (adds prefix to all).
-     * See route() method.
+     * See App::route() method.
      *
-     * @param string $prefix     URI prefix for all routes
-     * @param array  $routes     A list of routes (@see route())
-     * @param array  $middleware Global middleware for all routes
+     * @param string $prefix URI prefix for all routes in this group
+     * @param array $routes A list of routes (@see App::route())
+     * @param array<int, MiddlewareInterface|string> $middleware Additional middleware for all routes
      * @return self
      */
     public function group(
@@ -113,6 +114,7 @@ class App implements RequestHandlerInterface
         array $routes,
         array $middleware = []): App
     {
+        /** @var array{template: string, resource: object|string, middleware: array, explicit: bool} $route */
         foreach ($routes as $route) {
             // (template, resource, middleware, explicit)
             $route += ['', '', [], false];
@@ -160,7 +162,7 @@ class App implements RequestHandlerInterface
         $this->offset = 0;
         $this->stack = [];
         if (empty($uriTemplate)) {
-            // Always support CORS requests (for responses like 404, etc)
+            // Always support CORS requests
             $this->explicit[$uriTemplate] = [true, [CorsMiddleware::class]];
         }
         [$explicit, $middleware] = $this->explicit[$uriTemplate] + [true];
@@ -255,17 +257,16 @@ class App implements RequestHandlerInterface
         \Throwable $ex): void
     {
         \error_log(\sprintf("[%s] %s\n%s",
-                           $title = \get_debug_type($ex),
-                           $ex->getMessage(),
-                           $ex->getTraceAsString()));
+                            $title = \get_debug_type($ex),
+                            $ex->getMessage(),
+                            $ex->getTraceAsString()));
 
         $this->composeErrorResponse(
             $request,
             $response,
-            new HTTPError(
-                ($ex->getCode() < 100 || $ex->getCode() > 599) ? HttpStatus::CONFLICT : $ex->getCode(),
-                title: $title,
-                detail: $ex->getMessage(),
+            new HTTPError(($ex->getCode() < 100 || $ex->getCode() > 599) ? HttpStatus::CONFLICT : $ex->getCode(),
+                title:    $title,
+                detail:   $ex->getMessage(),
                 previous: $ex
             ));
     }

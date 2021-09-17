@@ -133,20 +133,23 @@ class HTTPError extends \RuntimeException implements KodedHTTPError
 
     public function toXml(): string
     {
-        return \rawurldecode(xml_serialize('error', \array_filter($this->toArray())));
+        return \rawurldecode(xml_serialize('problem', \array_filter($this->toArray())));
     }
 
+    /**
+     * @return array{status: int, instance: string, detail: string, title: string, type: string}
+     */
     public function toArray(): array
     {
         $status = ($this->code < 100 || $this->code > 599)
-            ? StatusCode::I_AM_TEAPOT
+            ? HttpStatus::I_AM_TEAPOT
             : $this->code;
 
         return \array_merge([
             'status'   => $status,
             'instance' => $this->instance,
             'detail'   => $this->detail ?: StatusCode::description($status),
-            'title'    => $this->message,
+            'title'    => $this->title ?: $this->message,
             'type'     => $this->type ?: "https://httpstatuses.com/$status",
         ], $this->members);
     }

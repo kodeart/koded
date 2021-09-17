@@ -4,7 +4,7 @@ namespace Koded\Framework;
 
 use Koded\DIContainer;
 use Koded\Framework\Middleware\{CallableMiddleware, CorsMiddleware, GzipMiddleware};
-use Koded\Http\Interfaces\{HttpStatus, Request};
+use Koded\Http\Interfaces\{HttpStatus, Request, Response};
 use Koded\Stdlib\Configuration;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
@@ -61,6 +61,7 @@ class App implements RequestHandlerInterface
             }
         }
         // Share the response object for (custom) renderers
+        $this->container->bind(Response::class, $response::class);
         $this->container->share($response);
         return ($this->container)($this->renderer);
     }

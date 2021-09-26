@@ -7,9 +7,6 @@ use Koded\Stdlib\Configuration;
 abstract class I18nCatalog
 {
     public const DEFAULT_LOCALE = 'en_US';
-
-    protected const DEFAULT_CATALOG = DefaultCatalog::class;
-    protected const DEFAULT_FORMATTER = DefaultFormatter::class;
     protected const DEFAULT_DOMAIN = 'messages';
 
     protected I18nFormatter $formatter;
@@ -23,15 +20,17 @@ abstract class I18nCatalog
     {
         $this->formatter = $formatter;
         $this->dir = \rtrim($dir, '/') . '/';
-        $this->locale = $this->supports($locale)
-            ? $this->initialize($locale)
-            : $this->initialize(static::DEFAULT_LOCALE);
+        $this->locale = $this->initialize(
+            $this->supports($locale) ? $locale : static::DEFAULT_LOCALE
+        ) ?: static::DEFAULT_LOCALE;
     }
 
     public static function new(Configuration $conf): I18nCatalog
     {
-        $catalog = $conf->get('translation.catalog', static::DEFAULT_CATALOG);
-        $formatter = $conf->get('translation.formatter', static::DEFAULT_FORMATTER);
+        /** @var static $catalog */
+        /** @var static $self */
+        $catalog = $conf->get('translation.catalog', DefaultCatalog::class);
+        $formatter = $conf->get('translation.formatter', DefaultFormatter::class);
         $self = new $catalog(
             new $formatter,
             $conf->get('translation.locale', static::DEFAULT_LOCALE),
@@ -41,9 +40,8 @@ abstract class I18nCatalog
             return $self;
         }
         // Fallback to default catalog and locale
-        //$catalog = static::DEFAULT_CATALOG;
         return new $catalog(
-            new ($formatter = static::DEFAULT_FORMATTER),
+            new DefaultFormatter,
             static::DEFAULT_LOCALE,
             __DIR__ . '/../locales'
         );

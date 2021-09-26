@@ -14,8 +14,8 @@ class I18n
 
     public static function translate(
         string $string,
-        array $arguments,
-        string $locale): string
+        array $arguments = [],
+        string $locale = I18nCatalog::DEFAULT_LOCALE): string
     {
         try {
             return self::$catalogs[$locale]->translate('messages', $string, $arguments);

@@ -1,0 +1,87 @@
+site_name: Koded Framework
+site_url: https://kodeart.github.io/koded
+site_author: Mihail Binev
+site_description: RMR micro framework
+
+copyright: '&copy; <a href="https://dev.kodeart.com/">Kodeart</a> - Mihail Binev'
+repo_url: https://github.com/kodeart/koded
+repo_name: koded/framework
+docs_dir: docs
+site_dir: site
+edit_uri: ""
+
+theme:
+  name: material
+  font:
+    text: 'Open Sans'
+    code: 'Roboto Mono'
+  nav_style: dark
+  custom_dir: docs/overrides
+  highlightjs: true
+  hljs_style: github
+  palette:
+    - scheme: slate
+      primary: blue
+      accent: white
+  icon:
+    repo: fontawesome/brands/git-alt
+  features:
+    - header.autohide
+
+nav:
+  - Intro: index.md
+  - Get Started: get-started.md
+  - Configuration:
+    - App instance: configure/index.md
+    - DI Modules: configure/modules.md
+  - Routing:
+      - Basics: routing/index.md
+      - URI parameters: routing/parameters.md
+      - Routes caching: routing/caching.md
+  - Middelware:
+    - PSR-15: middleware/psr-15.md
+    - Built-in: middleware/builtin.md
+  - Utility:
+      - Logging: utils/logger.md
+      - Caching: utils/caching.md
+  - I18n:
+      - Setup: translation/index.md
+      - Catalogs: translation/catalogs.md
+      - Formatters: translation/formatters.md
+  - Exception handling: exception-handlers.md
+
+plugins:
+  - search
+  - minify:
+      minify_html: true
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - meta
+  - toc:
+      permalink: true
+  - pymdownx.caret
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.mark
+  - pymdownx.superfences
+  - pymdownx.tabbed
+  - pymdownx.tilde
+  - pymdownx.betterem:
+      smart_enable: true
+  - pymdownx.magiclink:
+      repo_url_shorthand: true
+      user: kodeart
+      repo: koded
+  - codehilite:
+      guess_lang: true
+
+extra:
+  generator: false
+  social:
+    - icon: fontawesome/brands/github-alt
+      link: https://github.com/kodeart/koded

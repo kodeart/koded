@@ -16,8 +16,8 @@ Ecosystem
 
 Built-in functionality:
 
-- Dependency Injection Container
-- URI routing (with enough flexible URI templates)
+- Dependency Injection Container (PSR-11)
+- URI routing (with URI templates)
 - Middleware (PSR-15)
 - I18n support (because the world is multilingual)
 - and more
@@ -38,7 +38,7 @@ Read the docs at [Koded Framework documentation][docs] page.
 
 [![php-version]][php-link] [![license-status]][license-link]
 
-[docs]: https://koded.github.io/
+[docs]: https://kodeart.github.io/koded
 
 [php-version]: https://img.shields.io/badge/php-%3E%3D%208.0-8892BF.svg
 [php-link]: https://php.net/

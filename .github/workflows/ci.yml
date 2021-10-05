@@ -1,4 +1,4 @@
-name: Continuous Integration
+name: CI
 
 on:
   push:
@@ -7,7 +7,6 @@ on:
     branches: [ master ]
 
 env:
-  fail-fast: true
   timezone: UTC
   REQUIRED_PHP_EXTENSIONS: 'curl gettext libxml mbstring zip'
 
@@ -16,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: true
       matrix:
         php-version: ['8.0']
 
@@ -23,7 +23,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Setup PHP ${{ matrix.php-version }}
+    - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php-version }}
@@ -38,7 +38,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: vendor
-        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.json') }}
         restore-keys: |
           ${{ runner.os }}-php-
 

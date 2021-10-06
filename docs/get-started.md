@@ -100,7 +100,8 @@ services:
 Adjust the volumes, or the host port if it's already taken.
 Run `docker-compose up -d` and open your browser at `127.0.0.1:8080`
 
-### App entry point
+App entry point
+---------------
 
 Create the "entry script" for all HTTP requests. 
 There we create an instance of `App` and define the URI routes.

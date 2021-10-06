@@ -55,10 +55,7 @@ class Router
                 return $this->normalizeParams($this->callback[$id] ?? $route, $params);
             }
         }
-        if (empty($this->index)) {
-            return ['resource' => 'no_app_routes'];
-        }
-        return [];
+        return empty($this->index) ? ['resource' => 'no_app_routes'] : [];
     }
 
     private function normalizeParams(array $route, array $params): array

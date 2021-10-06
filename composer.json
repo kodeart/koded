@@ -20,7 +20,9 @@
     "filp/whoops": "^2.7",
     "ext-zlib": "*",
     "ext-json": "*",
-    "ext-mbstring": "*",
+    "ext-mbstring": "*"
+  },
+  "suggest": {
     "ext-gettext": "*"
   },
   "autoload": {

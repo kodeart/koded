@@ -32,7 +32,7 @@ The router supports simple types for automatic value typecasts.
     - str
     - int
     - float
-    - UUID
+    - uuid
     - path
     - regex
 
@@ -65,10 +65,10 @@ The router supports simple types for automatic value typecasts.
   // the values are FLOATS ('lon' => 41.9973, 'lat' => 21.4325)
 ```
 
-### UUID
+### uuid
 
 ```php
-  ->route('/{ident:UUID}')
+  ->route('/{ident:uuid}')
 
   // ie. "/7eacf466-321f-4ceb-914e-e525987e7804" 
   // the value is STRING ('ident' => '7eacf466-321f-4ceb-914e-e525987e7804')

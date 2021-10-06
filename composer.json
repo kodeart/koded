@@ -1,9 +1,13 @@
 {
   "name": "koded/framework",
-  "version": "1.0.0",
   "type": "library",
   "license": "BSD-3-Clause",
-  "description": "Micro framework for ReST apps",
+  "description": "Micro framework for RESTful apps",
+  "homepage": "https://kodeart.github.io/koded/",
+  "support": {
+    "issues": "https://github.com/kodeart/koded/issues",
+    "source": "https://github.com/kodeart/koded"
+  },
   "keywords": [
     "rest",
     "micro",
@@ -20,10 +24,6 @@
     "filp/whoops": "^2.7",
     "ext-json": "*",
     "ext-mbstring": "*"
-  },
-  "suggest": {
-    "ext-gettext": "*",
-    "ext-zlib": "*"
   },
   "autoload": {
     "classmap": [
@@ -47,7 +47,8 @@
     ]
   },
   "require-dev": {
-    "phpunit/phpunit": "^9"
+    "phpunit/phpunit": "^9",
+    "symfony/var-dumper": "^5"
   },
   "autoload-dev": {
     "psr-4": {
@@ -55,7 +56,12 @@
     }
   },
   "config": {
-    "optimize-autoloader": true
+    "optimize-autoloader": true,
+    "sort-packages": true
+  },
+  "suggest": {
+    "ext-gettext": "Required to use the I18n with gettext support",
+    "ext-zlib": "Required for various development operations"
   },
   "minimum-stability": "dev",
   "prefer-stable": true

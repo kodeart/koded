@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-use Koded\Framework\{HTTPBadRequest, HTTPMethodNotAllowed, HTTPNotFound};
+use Koded\Framework\{HTTPBadRequest, HTTPMethodNotAllowed, HTTPNotFound, HTTPNotImplemented};
 use Koded\Http\{HttpFactory, ServerResponse};
 use Koded\Http\Client\ClientFactory;
 use Koded\Http\Interfaces\{HttpStatus, Request};
@@ -25,8 +25,21 @@ function method_not_allowed(array $allowed): callable
     throw new HTTPMethodNotAllowed($allowed);
 }
 
+
+function no_app_routes(): callable
+{
+    throw (new HTTPNotImplemented(
+        title:  'No Routes',
+        detail: 'No routes are defined in your application',
+        type:   'https://kodeart.github.io/koded/routing/'
+    ))
+        ->setMember('framework', 'Koded Framework')
+        ->setMember('version', get_version());
+}
+
 /**
  * Creates a responder for HTTP HEAD method.
+ *
  * @param string $uri
  * @param array  $methods
  * @return callable
@@ -74,7 +87,8 @@ function head_response(string $uri, array $methods): callable
  */
 function create_options_response(array $methods): callable
 {
-    return fn() => (new HttpFactory)->createResponse(HttpStatus::NO_CONTENT)
+    return fn(): ResponseInterface => (new HttpFactory)
+        ->createResponse(HttpStatus::NO_CONTENT)
         ->withHeader('Cache-Control', 'no-cache, max-age=0')
         ->withHeader('Allow', \join(',', $methods))
         ->withHeader('Content-Type', 'text/plain');
@@ -82,6 +96,7 @@ function create_options_response(array $methods): callable
 
 /**
  * Maps the HTTP methods to responder (public) methods.
+ *
  * @param callable|object|string $resource
  * @return array|callable[]|object[]|string[]
  */
@@ -91,7 +106,8 @@ function map_http_methods(callable|object|string $resource): array
         Request::HEAD => 'head',
         Request::OPTIONS => 'options'
     ];
-    foreach ([Request::GET,
+    foreach ([
+                 Request::GET,
                  Request::POST,
                  Request::PUT,
                  Request::PATCH,

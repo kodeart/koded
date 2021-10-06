@@ -110,9 +110,12 @@ implements this functionality.
     ```
 
 !!! warning ".env support"
-    Koded loads `.env` file by default. No need to set it
-    in the `App` constructor - unless it is located outside the
-    application root folder.  
+
+[comment]: <> (    Koded loads `.env` file by default. No need to set it)
+
+[comment]: <> (    in the `App` constructor - unless it is located outside the)
+
+[comment]: <> (    application root folder.  )
 
     **Make sure .env file is not accessible from the outside.**
 

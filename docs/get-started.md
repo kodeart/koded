@@ -53,7 +53,7 @@ This is an example, `app` is not a requirement and it can be anything you want.
 ### App entry point
 
 The simplest way to start is to create the "entry script" for all
-HTTP requests. There we create an isntance of `App` and define the URI routes.
+HTTP requests. There we create an instance of `App` and define the URI routes.
 
 ``` php
 # /path/to/public/index.php

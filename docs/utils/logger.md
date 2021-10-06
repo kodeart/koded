@@ -22,7 +22,8 @@ Default logging library is [Koded Logging][koded-log].
 Setup logging
 -------------
 
-Logger library is done in the [application configuration](../configure/index.md#config)
+Logger library is configured in the \
+[application configuration](../configure/index.md#config)
 for the `App` instance.
 
 ```php

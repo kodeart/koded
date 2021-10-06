@@ -15,7 +15,7 @@ translated strings are stored.
     - `DefaultCatalog` for simple projects or relatively
     small amount of strings or languages support.
 
-    There is no "right or wrong" choice, just pick one that
+    There is no right or wrong choice, just pick one that
     you think is easy to work with or is suitable for your project. 
 
 

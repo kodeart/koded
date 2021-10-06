@@ -1,7 +1,7 @@
 App class configuration
 =======================
 
-The onfiguration object is created by setting the config
+The configuration object is created by setting the config
 directives in the `Koded\Framework\App` constructor.
 
 | Argument          | Type           | Required | Default | |
@@ -133,9 +133,9 @@ implements this functionality.
     new App(renderer: 'My\App\custom_renderer');
     ```
 
-The purpose of this cmass method (or function) is to provide a custom
-processing of the `ServerRequestInterface`  and `ResponseINterface` objects
-BEFORE it is finally sent to the client, for example a custom made HTML
+The purpose of this class method (or function) is to provide a custom
+processing of the `ServerRequestInterface`  and `ResponseInterface` objects
+BEFORE it is finally sent to the client, for example a custom-made HTML
 renderer for server-side template engines, or a response streaming, etc.
 
 

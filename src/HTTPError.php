@@ -34,7 +34,7 @@ interface KodedHTTPError
  * Represents a generic HTTP error.
  * Follows the RFC-7807 (https://tools.ietf.org/html/rfc7807)
  *
- * Raise an instance of subclass of `HtTTPError` to have Koded return
+ * Raise an instance of subclass of `HTTPError` to have Koded return
  * a formatted error response and appropriate HTTP status code to
  * the client when something goes wrong. JSON and XML media types are
  * supported by default.

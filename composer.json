@@ -18,12 +18,12 @@
     "koded/logging": "^3.1",
     "koded/session": "2.*",
     "filp/whoops": "^2.7",
-    "ext-zlib": "*",
     "ext-json": "*",
     "ext-mbstring": "*"
   },
   "suggest": {
-    "ext-gettext": "*"
+    "ext-gettext": "*",
+    "ext-zlib": "*"
   },
   "autoload": {
     "classmap": [

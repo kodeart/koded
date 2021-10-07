@@ -2,7 +2,10 @@ Koded - RMR Micro Framework
 ===========================
 
 [![CI](https://github.com/kodeart/koded/actions/workflows/ci.yml/badge.svg)](https://github.com/kodeart/koded/actions/workflows/ci.yml)
+[![CI](https://github.com/kodeart/koded/actions/workflows/docs.yml/badge.svg)](https://github.com/kodeart/koded/actions/workflows/docs.yml)
 [![Latest Stable Version](https://img.shields.io/packagist/v/koded/framework.svg)](https://packagist.org/packages/koded/framework)
+[![Code Coverage](https://scrutinizer-ci.com/g/kodeart/koded/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/kodeart/koded/?branch=master)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/kodeart/koded/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/kodeart/koded/?branch=master)
 
 
     Freedom to design your project - your way.

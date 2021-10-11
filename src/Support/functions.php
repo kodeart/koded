@@ -21,8 +21,8 @@ function start_response(Request $request, Response $response): void
 {
     if (false === $response->hasHeader('Content-Type')) {
         $media = $request->getAttribute('@media') ?? client_prefers($request);
-        // [NOTE]: Default browsers have weird Accept headers and
-        // this renderer overrules the default XML and/or HTML type
+        // [NOTE]: Web browsers have weird Accept headers and
+        // this renderer overrules the default XML and/or XHTML type
         // by preferring JSON, hence forcing the response for ReST apps.
         if (\str_contains($media, 'html')) {
             $media = 'application/json';

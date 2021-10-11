@@ -203,10 +203,7 @@ class CorsMiddleware implements MiddlewareInterface
 
     private function getExposedHeaders(bool $hasCredentials): string
     {
-        $expose = $this->expose;
-        if ($hasCredentials && \str_contains($expose, '*')) {
-            return '';
-        }
-        return $expose;
+        return ($hasCredentials && \str_contains($this->expose, '*'))
+            ? '' : $this->expose;
     }
 }

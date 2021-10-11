@@ -66,7 +66,7 @@ function head_response(string $uri, array $methods): callable
             return $get;
         }
         // If GET request fails, it returns the Allow header
-        // with the failure reason in the "X-Response-*" headers
+        // with the failure reason in the "X-Error-*" headers
         \error_log($get->getBody()->getContents());
         return $get
             ->withHeader('X-Error-Status', \join(' ', [$get->getStatusCode(), $get->getReasonPhrase()]))

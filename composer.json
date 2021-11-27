@@ -41,7 +41,6 @@
     ],
     "files": [
       "src/Support/errors.php",
-      "src/Support/semver.php",
       "src/Support/responders.php",
       "src/Support/functions.php"
     ]

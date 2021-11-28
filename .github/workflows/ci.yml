@@ -31,7 +31,7 @@ jobs:
         php-version: ${{ matrix.php }}
         tools: composer:v2, pecl
         coverage: pcov
-        extensions: curl gettext libxml mbstring simplexml xml zip
+        extensions: curl gettext intl, libxml mbstring simplexml xml zip
         ini-values: zend.assertions=1
 
     - name: Get Composer cache directory

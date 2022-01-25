@@ -33,6 +33,7 @@ Built-in functionality:
 | [cache][cache-simple]        | [![cache-simple-status]][cache-simple-package]       | Caching library (PSR-16)
 | [session][koded-session]     | [![koded-session-status]][koded-session-package]     | Session library
 | [logging][koded-logging]     | [![koded-logging-status]][koded-logging-package]     | Log facility (PSR-3)
+| [i18n][koded-i18n]           | [![koded-i18n-status]][koded-i18n-package]           | Internationalization (I18n) library
 
 
 Documentation
@@ -68,4 +69,8 @@ Read the docs at [Koded Framework documentation][docs] page.
 [koded-logging]: https://github.com/kodedphp/logging
 [koded-logging-status]: https://img.shields.io/packagist/v/koded/logging.svg
 [koded-logging-package]: https://packagist.org/packages/koded/logging
+
+[koded-i18n]: https://github.com/kodedphp/i18n
+[koded-i18n-status]: https://img.shields.io/packagist/v/koded/i18n.svg
+[koded-i18n-package]: https://packagist.org/packages/koded/i18n
 

@@ -46,14 +46,14 @@ class App implements RequestHandlerInterface
     private array $explicit = [];
     /** @var array<string, callable|null> */
     private array $handlers = [];
-    private DIContainer $container;
     private mixed $responder;
+    private readonly DIContainer $container;
 
     public function __construct(
         array $modules = [],
         Configuration|string $config = '',
-        private mixed $renderer = 'start_response',
-        private array $middleware = [])
+        private array $middleware = [],
+        private mixed $renderer = 'start_response')
     {
         date_default_timezone_set('UTC');
         $this->withErrorHandler(HTTPError::class, 'static::httpErrorHandler');

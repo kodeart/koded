@@ -1,4 +1,4 @@
-* text=auto
+* text=auto eol=lf
 
 *.php diff=php
 *.md diff=markdown

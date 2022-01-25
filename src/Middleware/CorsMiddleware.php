@@ -6,6 +6,13 @@ use Koded\Http\Interfaces\{HttpStatus, Request};
 use Koded\Stdlib\Configuration;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
+use function in_array;
+use function join;
+use function preg_split;
+use function str_contains;
+use function strtolower;
+use function strtoupper;
+use function trim;
 
 /**
  * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
@@ -55,10 +62,10 @@ class CorsMiddleware implements MiddlewareInterface
     public function __construct(Configuration $config)
     {
         $this->isDisabled = (bool)$config->get('cors.disable');
-        $this->origin = \trim($config->get('cors.origin'));
-        $this->methods = \strtoupper(\trim($config->get('cors.methods')));
-        $this->headers = \trim($config->get('cors.headers'));
-        $this->expose = \trim($config->get('cors.expose'));
+        $this->origin = trim($config->get('cors.origin'));
+        $this->methods = strtoupper(trim($config->get('cors.methods')));
+        $this->headers = trim($config->get('cors.headers'));
+        $this->expose = trim($config->get('cors.expose'));
         $this->maxAge = (int)$config->get('cors.maxAge');
     }
 
@@ -85,7 +92,7 @@ class CorsMiddleware implements MiddlewareInterface
     private function isSimpleRequest(ServerRequestInterface $request): bool
     {
         // https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#simple_requests
-        if (false === \in_array($request->getMethod(), static::SAFE_METHODS, true)) {
+        if (false === in_array($request->getMethod(), static::SAFE_METHODS, true)) {
             return false;
         }
         if ('' === $contentType = $request->getHeaderLine('Content-Type')) {
@@ -160,7 +167,7 @@ class CorsMiddleware implements MiddlewareInterface
         bool $hasCredentials): string
     {
         $origin = $this->origin ?: '*';
-        if ($hasCredentials && \str_contains($origin, '*')) {
+        if ($hasCredentials && str_contains($origin, '*')) {
             return $request->getHeaderLine('Origin');
         }
         return $origin;
@@ -172,10 +179,10 @@ class CorsMiddleware implements MiddlewareInterface
     {
         $methods = match (true) {
             !empty($this->methods) => $this->methods,
-            !empty($method = $request->getAttribute('@http_methods')) => \join(',', $method),
+            !empty($method = $request->getAttribute('@http_methods')) => join(',', $method),
             default => 'HEAD,OPTIONS',
         };
-        if ($hasCredentials && \str_contains($methods, '*')) {
+        if ($hasCredentials && str_contains($methods, '*')) {
             return 'GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS';
         }
         return $methods;
@@ -185,25 +192,25 @@ class CorsMiddleware implements MiddlewareInterface
         ServerRequestInterface $request,
         bool $hasCredentials): string
     {
-        $headers = $this->headers ?: $request->getHeaderLine('Access-Control-Request-Headers');// ?: '*';
-        if ($hasCredentials && \str_contains($headers, '*')) {
+        $headers = $this->headers ?: $request->getHeaderLine('Access-Control-Request-Headers');
+        if ($hasCredentials && str_contains($headers, '*')) {
             // Return here and let the client process the consequences
             // of the forced headers from configuration, or sent headers
             return $headers;
         }
         $result = [];
-        foreach (\preg_split('/, */', $headers) as $header) {
-            if (isset(self::SIMPLE_HEADERS[\strtolower($header)])) {
+        foreach (preg_split('/, */', $headers) as $header) {
+            if (isset(self::SIMPLE_HEADERS[strtolower($header)])) {
                 continue;
             }
             $result[] = $header;
         }
-        return \join(',', $result);
+        return join(',', $result);
     }
 
     private function getExposedHeaders(bool $hasCredentials): string
     {
-        return ($hasCredentials && \str_contains($this->expose, '*'))
+        return ($hasCredentials && str_contains($this->expose, '*'))
             ? '' : $this->expose;
     }
 }

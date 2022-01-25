@@ -14,7 +14,9 @@ class XPoweredByMiddleware implements MiddlewareInterface
         $this->value = empty($value) ? 'Koded v' . get_version() : $value;
     }
 
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    public function process(
+        ServerRequestInterface $request,
+        RequestHandlerInterface $handler): ResponseInterface
     {
         return $handler->handle($request)
             ->withHeader('X-Powered-By', $this->value);

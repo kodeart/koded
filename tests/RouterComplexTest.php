@@ -90,7 +90,7 @@ class RouterComplexTest extends TestCase
                 '/{param1}/{param2}',
                 $ex->getInstance());
 
-            $members = $this->property($ex, 'members');
+            $members = $this->objectProperty($ex, 'members');
             $this->assertArrayHasKey('conflict-route', $members);
             $this->assertSame(
                 ['/{param1}/{param2}' => '/{version}/{path:path}'],
@@ -111,7 +111,7 @@ class RouterComplexTest extends TestCase
                 'Use one of the supported parameter types',
                 $ex->getDetail());
 
-            $members = $this->property($ex, 'members');
+            $members = $this->objectProperty($ex, 'members');
             $this->assertArrayHasKey('supported-types', $members);
             $this->assertSame(
                 [

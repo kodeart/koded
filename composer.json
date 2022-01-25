@@ -14,13 +14,15 @@
     "framework"
   ],
   "require": {
-    "php": "^8",
+    "php": "^8.1",
     "psr/http-server-middleware": "^1",
-    "koded/container": "^2.3",
+    "koded/container": "dev-master",
     "koded/cache-simple": "^3",
     "koded/http": "^3.1",
+    "koded/i18n": "dev-master",
     "koded/logging": "^3.1",
     "koded/session": "2.*",
+    "koded/stdlib": "6.0.0 as 5.1.1",
     "filp/whoops": "^2.7",
     "ext-json": "*",
     "ext-mbstring": "*"
@@ -45,6 +47,14 @@
       "src/Support/functions.php"
     ]
   },
+  "provide": {
+    "psr/container-implementation": "^2",
+    "psr/simple-cache-implementation": "^3",
+    "psr/http-message-implementation": "^2",
+    "psr/log-implementation": "^3",
+    "psr/http-server-middleware-implementation": "^1",
+    "psr/http-server-handler-implementation": "^1"
+  },
   "require-dev": {
     "phpunit/phpunit": "^9",
     "symfony/var-dumper": "^5"
@@ -58,8 +68,14 @@
     "optimize-autoloader": true,
     "sort-packages": true
   },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "1.x-dev"
+    }
+  },
   "suggest": {
-    "ext-gettext": "Required to use the I18n with gettext support",
+    "ext-intl": "Required for I18n and localization with intl module",
+    "ext-gettext": "Required for I18n and gettext support",
     "ext-zlib": "Required for various development operations"
   },
   "minimum-stability": "dev",

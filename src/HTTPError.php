@@ -4,7 +4,11 @@ namespace Koded\Framework;
 
 use Koded\Http\Interfaces\HttpStatus;
 use Koded\Http\StatusCode;
+use RuntimeException;
+use Throwable;
+use function array_filter;
 use function Koded\Stdlib\{json_serialize, xml_serialize};
+use function rawurldecode;
 
 
 interface KodedHTTPError
@@ -46,7 +50,7 @@ interface KodedHTTPError
  *
  * @link https://tools.ietf.org/html/rfc7807
  */
-class HTTPError extends \RuntimeException implements KodedHTTPError
+class HTTPError extends RuntimeException implements KodedHTTPError
 {
     /**
      * Extension members for problem type definitions may extend the
@@ -68,16 +72,16 @@ class HTTPError extends \RuntimeException implements KodedHTTPError
      * @param string          $instance A URI reference that identifies the specific occurrence of the problem.
      * @param string          $type     A URI reference that identifies the problem type and points to a human-readable documentation
      * @param array|null      $headers  Extra headers to add to the response
-     * @param \Throwable|null $previous The previous Throwable, if any
+     * @param Throwable|null $previous The previous Throwable, if any
      */
     public function __construct(
-        int $status,
+        int              $status,
         protected string $title = '',
         protected string $detail = '',
         protected string $instance = '',
         protected string $type = '',
         protected ?array $headers = [],
-        ?\Throwable $previous = null)
+        ?Throwable       $previous = null)
     {
         $this->code = $status ?: HttpStatus::I_AM_TEAPOT;
         $this->message = $title ?: HttpStatus::CODE[$this->code];
@@ -128,12 +132,12 @@ class HTTPError extends \RuntimeException implements KodedHTTPError
 
     public function toJson(): string
     {
-        return \rawurldecode(json_serialize(\array_filter($this->toArray())));
+        return rawurldecode(json_serialize(array_filter($this->toArray())));
     }
 
     public function toXml(): string
     {
-        return \rawurldecode(xml_serialize('problem', \array_filter($this->toArray())));
+        return rawurldecode(xml_serialize('problem', array_filter($this->toArray())));
     }
 
     /**

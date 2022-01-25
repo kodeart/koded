@@ -15,7 +15,9 @@ class CallableMiddleware implements MiddlewareInterface
         $this->callback = $callback;
     }
 
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    public function process(
+        ServerRequestInterface $request,
+        RequestHandlerInterface $handler): ResponseInterface
     {
         if ($this->callback instanceof MiddlewareInterface) {
             return ($this->callback)->process($request, $handler);

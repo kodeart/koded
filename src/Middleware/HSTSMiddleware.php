@@ -20,7 +20,9 @@ class HSTSMiddleware implements MiddlewareInterface
             $this->includeSubDomains = ';includeSubDomains';
         }
     }
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    public function process(
+        ServerRequestInterface $request,
+        RequestHandlerInterface $handler): ResponseInterface
     {
         if ('https' !== $request->getUri()->getScheme()) {
             return (new ServerResponse(null, HttpStatus::MOVED_PERMANENTLY))

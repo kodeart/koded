@@ -10,7 +10,9 @@ use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
  */
 class NoCacheMiddleware implements MiddlewareInterface
 {
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    public function process(
+        ServerRequestInterface $request,
+        RequestHandlerInterface $handler): ResponseInterface
     {
         return $handler->handle($request)
             ->withHeader('Cache-Control', 'no-cache, max-age=0');

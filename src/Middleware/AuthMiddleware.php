@@ -17,7 +17,9 @@ class AuthMiddleware implements MiddlewareInterface
         $this->backend = $backend;
     }
 
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    public function process(
+        ServerRequestInterface $request,
+        RequestHandlerInterface $handler): ResponseInterface
     {
         if ('OPTIONS' === $request->getMethod()) {
             return $handler->handle($request);

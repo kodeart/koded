@@ -1,10 +1,10 @@
-*.php diff=php
+* text=auto
 
-/bench         export-ignore
-/build         export-ignore
-/tests         export-ignore
-/public        export-ignore
-/vendor        export-ignore
-/composer.lock export-ignore
-/*.dist        export-ignore
-/*.yml         export-ignore
+*.php diff=php
+*.md diff=markdown
+
+.git*   export-ignore
+docs/   export-ignore
+tests/  export-ignore
+*.dist  export-ignore
+*.yml   export-ignore

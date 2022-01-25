@@ -3,6 +3,8 @@
 namespace Koded\Framework;
 
 use Koded\Http\Interfaces\HttpStatus;
+use function array_map;
+use function join;
 
 class HTTPNotFound extends HTTPError
 {

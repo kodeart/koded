@@ -29,7 +29,7 @@ class RouterBasicTest extends TestCase
             $this->assertSame('Duplicate route', $ex->getTitle());
             $this->assertSame('Duplicate route', $ex->getMessage());
 
-            $members = $this->property($ex, 'members');
+            $members = $this->objectProperty($ex, 'members');
             $this->assertArrayHasKey('conflict-route', $members);
             $this->assertEquals(
                 ['/{param}/' => '/{fubar}/'],
@@ -63,7 +63,7 @@ class RouterBasicTest extends TestCase
             $match['params']->param,
             'Matches the arbitrary string; with no trailing slash in the URI it matches the regex');
 
-        $index = $this->property($router, 'index');
+        $index = $this->objectProperty($router, 'index');
         $this->assertCount(
             2,
             $index,
@@ -103,19 +103,19 @@ class RouterBasicTest extends TestCase
         $router = new Router(new MemoryClient);
         $router->route($template, function() {});
 
-        $cache = $this->property($router, 'cache');
+        $cache = $this->objectProperty($router, 'cache');
         $this->assertEmpty(
             $cache->get($templateId)['resource'],
             'Non-cacheable resources are not in the cache index');
 
-        $callbacks = $this->property($router, 'callback');
+        $callbacks = $this->objectProperty($router, 'callback');
 
         $this->assertInstanceOf(
             \Closure::class,
             $callbacks[$templateId]['resource'],
             'Non-cacheable resources are stored in the router callback registry');
 
-        $this->assertFalse($this->property($router, 'cached'));
+        $this->assertFalse($this->objectProperty($router, 'cached'));
     }
 
     public function test_resource_class_cache()
@@ -128,7 +128,7 @@ class RouterBasicTest extends TestCase
         $router = new Router(new MemoryClient);
         $router->route($template, TestResource::class);
 
-        $cache = $this->property($router, 'cache');
+        $cache = $this->objectProperty($router, 'cache');
 
         $this->assertSame(
             TestResource::class,

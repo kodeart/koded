@@ -1,20 +1,11 @@
 <?php declare(strict_types=1);
 
 use Koded\Framework\HTTPError;
-use Koded\Framework\I18n\{I18n, I18nCatalog};
+//use Koded\Framework\I18n\{I18n, I18nCatalog};
 use Koded\Http\AcceptHeaderNegotiator;
 use Koded\Http\Interfaces\{Request, Response};
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use function Koded\Http\create_stream;
-
-
-function __(
-    string $string,
-    array $arguments = [],
-    string $locale = I18nCatalog::DEFAULT_LOCALE): string
-{
-    return I18n::translate($string, $arguments, $locale);
-}
 
 
 function start_response(Request $request, Response $response): void
@@ -24,7 +15,7 @@ function start_response(Request $request, Response $response): void
         // [NOTE]: Web browsers have weird Accept headers and
         // this renderer overrules the default XML and/or XHTML type
         // by preferring JSON, hence forcing the response for ReST apps.
-        if (\str_contains($media, 'html')) {
+        if (str_contains($media, 'html')) {
             $media = 'application/json';
         }
         $response = $response
@@ -53,7 +44,7 @@ function client_prefers(ServerRequestInterface $request): string
     if ('*' === $media) {
         return 'application/json';
     }
-    return $media . (\str_contains($media, 'json') ? '' : '; charset=UTF-8');
+    return $media . (str_contains($media, 'json') ? '' : '; charset=UTF-8');
 }
 
 /**
@@ -72,12 +63,12 @@ function default_serialize_error(
 {
     $exception->setMember('instance', $request->getUri()->getPath());
     $response = $response
-        ->withHeader('X-Error-Status', \join(' ', [$response->getStatusCode(), $response->getReasonPhrase()]))
-        ->withHeader('X-Error-Message', \str_replace(["\n", "\r", "\t"], ' ', $exception->getDetail()))
+        ->withHeader('X-Error-Status', join(' ', [$response->getStatusCode(), $response->getReasonPhrase()]))
+        ->withHeader('X-Error-Message', str_replace(["\n", "\r", "\t"], ' ', $exception->getDetail()))
         ->withHeader('Cache-Control', 'no-cache, max-age=0')
         ->withHeader('Connection', 'close');
 
-    if (\str_contains(client_prefers($request), 'xml')) {
+    if (str_contains(client_prefers($request), 'xml')) {
         return $response
             ->withHeader('Content-Type', 'application/problem+xml')
             ->withBody(create_stream($exception->toXml()));

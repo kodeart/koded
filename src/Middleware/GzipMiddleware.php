@@ -4,14 +4,18 @@ namespace Koded\Framework\Middleware;
 
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
+use function gzencode;
 use function Koded\Http\create_stream;
+use function str_contains;
 
 class GzipMiddleware implements MiddlewareInterface
 {
     private const ACCEPT_ENCODING = 'Accept-Encoding';
     private const CONTENT_ENCODING = 'Content-Encoding';
 
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    public function process(
+        ServerRequestInterface $request,
+        RequestHandlerInterface $handler): ResponseInterface
     {
         $response = $handler->handle($request);
         if ($response->hasHeader(self::CONTENT_ENCODING)) {
@@ -28,7 +32,7 @@ class GzipMiddleware implements MiddlewareInterface
             ->withHeader(self::CONTENT_ENCODING, 'gzip')
             ->withAddedHeader('Vary', self::CONTENT_ENCODING)
             ->withBody(create_stream(
-                \gzencode($response->getBody()->getContents(), 7),
+                gzencode($response->getBody()->getContents(), 7),
                 $response->getBody()->getMetadata('mode')
             ));
     }
@@ -38,10 +42,10 @@ class GzipMiddleware implements MiddlewareInterface
         if (empty($encoding)) {
             return false;
         }
-        if (\str_contains($encoding, 'gzip')) {
+        if (str_contains($encoding, 'gzip')) {
             return true;
         }
-        if (\str_contains($encoding, '*')) {
+        if (str_contains($encoding, '*')) {
             return true;
         }
         return false;

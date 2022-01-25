@@ -2,6 +2,10 @@
 
 namespace Koded\Framework;
 
+use Closure;
+use Error;
+use Exception;
+use InvalidArgumentException;
 use Koded\DIContainer;
 use Koded\Framework\Middleware\{CallableMiddleware, CorsMiddleware, GzipMiddleware};
 use Koded\Http\Interfaces\{HttpStatus, Request, Response};
@@ -10,7 +14,24 @@ use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 use Psr\Log\LoggerInterface;
 use Whoops\Handler\{JsonResponseHandler, PrettyPageHandler};
+use stdClass;
+use Throwable;
+use TypeError;
 use Whoops\Run as WoopsRunner;
+use function array_keys;
+use function array_values;
+use function call_user_func_array;
+use function date_default_timezone_set;
+use function error_log;
+use function function_exists;
+use function get_class;
+use function get_debug_type;
+use function get_parent_class;
+use function is_a;
+use function is_callable;
+use function method_exists;
+use function rawurldecode;
+use function sprintf;
 
 (new WoopsRunner)
     ->prependHandler(new PrettyPageHandler)
@@ -34,12 +55,12 @@ class App implements RequestHandlerInterface
         private mixed $renderer = 'start_response',
         private array $middleware = [])
     {
-        \date_default_timezone_set('UTC');
+        date_default_timezone_set('UTC');
+        $this->withErrorHandler(HTTPError::class, 'static::httpErrorHandler');
+        $this->withErrorHandler(Exception::class, 'static::phpErrorHandler');
+        $this->withErrorHandler(Error::class, 'static::phpErrorHandler');
         $this->container = new DIContainer(new Module($config), ...$modules);
         $this->middleware = [new GzipMiddleware, CorsMiddleware::class, ...$middleware];
-        $this->withErrorHandler(HTTPError::class, 'static::httpErrorHandler');
-        $this->withErrorHandler(\Exception::class, 'static::phpErrorHandler');
-        $this->withErrorHandler(\Error::class, 'static::phpErrorHandler');
     }
 
     public function __invoke(): mixed
@@ -51,7 +72,7 @@ class App implements RequestHandlerInterface
             $this->responder = $this->getResponder($request, $uriTemplate);
             $this->initialize($uriTemplate);
             $response = $this->handle($request);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             // [NOTE]: On exception, the state of the immutable request/response
             //  objects are not updated through the middleware "request phase",
             //  therefore the object attributes (and other properties) are lost
@@ -116,7 +137,6 @@ class App implements RequestHandlerInterface
         array $routes,
         array $middleware = []): App
     {
-        /** @var array{template: string, resource: object|string, middleware: array, explicit: bool} $route */
         foreach ($routes as $route) {
             // (template, resource, middleware, explicit)
             $route += ['', '', [], false];
@@ -128,11 +148,11 @@ class App implements RequestHandlerInterface
 
     public function withErrorHandler(string $type, callable|null $handler): App
     {
-        if (false === \is_a($type, \Throwable::class, true)) {
-            throw new \TypeError('"type" must be an exception type', HttpStatus::CONFLICT);
+        if (false === is_a($type, Throwable::class, true)) {
+            throw new TypeError('"type" must be an exception type', HttpStatus::CONFLICT);
         }
-        if (null === $handler && false === \method_exists($type, 'handle')) {
-            throw new \TypeError('Error handler must either be specified explicitly,' .
+        if (null === $handler && false === method_exists($type, 'handle')) {
+            throw new TypeError('Error handler must either be specified explicitly,' .
                                  ' or defined as a static method named "handle" that is a member of' .
                                  ' the given exception type', HttpStatus::NOT_IMPLEMENTED);
         }
@@ -170,28 +190,28 @@ class App implements RequestHandlerInterface
         [$explicit, $middleware] = $this->explicit[$uriTemplate] + [true];
         $this->middleware = false === $explicit ? [...$this->middleware, ...$middleware] : $middleware;
         foreach ($this->middleware as $middleware) {
-            $class = 'string' === \get_debug_type($middleware) ? $middleware : \get_class($middleware);
+            $class = 'string' === get_debug_type($middleware) ? $middleware : get_class($middleware);
             $this->stack[$class] = match (true) {
                 $middleware instanceof MiddlewareInterface => $middleware,
-                \is_a($middleware, MiddlewareInterface::class, true) => $this->container->new($middleware),
-                \is_callable($middleware) => new CallableMiddleware($middleware),
-                default => throw new \InvalidArgumentException(
-                    \sprintf('Middleware "%s" must implement %s', $class, MiddlewareInterface::class)
+                is_a($middleware, MiddlewareInterface::class, true) => $this->container->new($middleware),
+                is_callable($middleware) => new CallableMiddleware($middleware),
+                default => throw new InvalidArgumentException(
+                    sprintf('Middleware "%s" must implement %s', $class, MiddlewareInterface::class)
                 )
             };
         }
-        $this->stack = \array_values($this->stack);
+        $this->stack = array_values($this->stack);
     }
 
     private function getResponder(
         ServerRequestInterface &$request,
         string|null &$uriTemplate): callable
     {
-        $path = \rawurldecode($request->getUri()->getPath());
+        $path = rawurldecode($request->getUri()->getPath());
         $match = $this->container->get(Router::class)->match($path);
         $uriTemplate = $match['template'] ?? null;
         $resource = $match['resource'] ?? null;
-        $allowed = \array_keys(map_http_methods($resource ?? new \stdClass));
+        $allowed = array_keys(map_http_methods($resource ?? new stdClass));
         $request = $request->withAttribute('@http_methods', $allowed);
         foreach ($match['params'] ?? [] as $name => $value) {
             $request = $request->withAttribute($name, $value);
@@ -209,11 +229,11 @@ class App implements RequestHandlerInterface
         if (Request::HEAD === $method) {
             return head_response((string)$request->getUri(), $allowed);
         }
-        if ($resource instanceof \Closure || \function_exists($resource)) {
+        if ($resource instanceof Closure || function_exists($resource)) {
             return $resource;
         }
         $responder = $this->container->new($resource);
-        if (false === \method_exists($responder, $method)) {
+        if (false === method_exists($responder, $method)) {
             return method_not_allowed($allowed);
         }
         return [$responder, $method];
@@ -222,13 +242,13 @@ class App implements RequestHandlerInterface
     private function handleException(
         ServerRequestInterface $request,
         ResponseInterface &$response,
-        \Throwable $ex): bool
+        Throwable $ex): bool
     {
         if (!$handler = $this->findErrorHandler($ex)) {
             return false;
         }
         try {
-            \call_user_func_array($handler, [$request, &$response, $ex]);
+            call_user_func_array($handler, [$request, &$response, $ex]);
         } catch (HTTPError $error) {
             $this->composeErrorResponse($request, $response, $error);
         }
@@ -237,16 +257,16 @@ class App implements RequestHandlerInterface
 
     private function findErrorHandler($ex): callable|null
     {
-        $parents = [\get_debug_type($ex)];
+        $parents = [get_debug_type($ex)];
         // Iterate the class inheritance chain
-        (function($class) use (&$parents) {
-            while ($class = \get_parent_class($class)) {
+        (static function($class) use (&$parents) {
+            while ($class = get_parent_class($class)) {
                 $parents[] = $class;
             }
         })($ex);
         // Find the parent that matches the exception type
         foreach ($parents as $parent) {
-            if (isset($this->handlers[$parent]) && \is_a($ex, $parent, true)) {
+            if (isset($this->handlers[$parent]) && is_a($ex, $parent, true)) {
                 return $this->handlers[$parent];
             }
         }
@@ -256,10 +276,10 @@ class App implements RequestHandlerInterface
     private function phpErrorHandler(
         ServerRequestInterface $request,
         ResponseInterface &$response,
-        \Throwable $ex): void
+        Throwable $ex): void
     {
-        \error_log(\sprintf("[%s] %s\n%s",
-                            $title = \get_debug_type($ex),
+        error_log(sprintf("[%s] %s\n%s",
+                            $title = get_debug_type($ex),
                             $ex->getMessage(),
                             $ex->getTraceAsString()));
 
@@ -291,11 +311,11 @@ class App implements RequestHandlerInterface
             $response = $response->withHeader($name, $value);
         }
         try {
-            $response = \call_user_func_array(
+            $response = call_user_func_array(
                 $this->container->get('$errorSerializer'),
                 [$request, &$response, $ex]
             );
-        } catch (\Throwable) {
+        } catch (Throwable) {
             // Fallback if error handler does not exist
             $response = default_serialize_error($request, $response, $ex);
         }

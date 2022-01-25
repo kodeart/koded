@@ -3,6 +3,7 @@
 namespace Koded\Framework\Auth;
 
 use function Koded\Session\session;
+use function password_hash;
 
 /**
  * A basic authentication storage that uses the
@@ -19,6 +20,6 @@ class SessionAuthBackend implements AuthBackend
 {
     public function __invoke(string $type, string $credentials): ?object
     {
-        return session()->get($type . '.' . \password_hash($credentials, PASSWORD_DEFAULT));
+        return session()->get($type . '.' . password_hash($credentials, PASSWORD_DEFAULT));
     }
 }

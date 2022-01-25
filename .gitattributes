@@ -1,16 +1,10 @@
-* text text=auto eol=lf
-*.bat eol=crlf
-*.php diff=php
+* text=auto eol=lf
 
-bench/         export-ignore
-build/         export-ignore
-docs/          export-ignore
-tests/         export-ignore
-public/        export-ignore
-vendor/        export-ignore
-.github/       export-ignore
-composer.lock  export-ignore
-*.dist         export-ignore
-*.yml          export-ignore
-.gitignore     export-ignore
-.gitattributes export-ignore
+*.php diff=php
+*.md diff=markdown
+
+.git*   export-ignore
+docs/   export-ignore
+tests/  export-ignore
+*.dist  export-ignore
+*.yml   export-ignore

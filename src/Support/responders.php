@@ -52,7 +52,7 @@ function head_response(string $uri, array $methods): callable
             return (new ServerResponse)->withHeader('Allow', $methods);
         }
         $get = (new ClientFactory(
-            \function_exists('\curl_init')
+            \function_exists('curl_init')
                 ? ClientFactory::CURL
                 : ClientFactory::PHP
         ))
@@ -72,7 +72,7 @@ function head_response(string $uri, array $methods): callable
             ->withHeader('X-Error-Status', \join(' ', [$get->getStatusCode(), $get->getReasonPhrase()]))
             ->withHeader('X-Error-Message', \str_replace(["\n", "\r", "\t"], ' ', $get->getBody()))
             ->withStatus(HttpStatus::OK)
-            ->withBody(create_stream(null));
+            ->withBody(create_stream(''));
     };
 }
 

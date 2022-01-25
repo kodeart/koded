@@ -1,49 +1,53 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - master
   pull_request:
+  push:
     branches:
       - master
 
 env:
   timezone: UTC
+  REQUIRED_PHP_EXTENSIONS: 'curl gettext intl libxml mbstring zip'
 
 jobs:
-  tests:
-    name: PHP ${{ matrix.php }} - ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}-latest
+  build:
+    runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
-        php: ['8.0', '8.1']
-        os: [Ubuntu]
+        php-version:
+          - '8.1'
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Setup PHP ${{ matrix.php }} (${{ matrix.os }})
+    - name: Setup PHP ${{ matrix.php-version }} (${{ matrix.os }})
       uses: shivammathur/setup-php@v2
       with:
-        php-version: ${{ matrix.php }}
-        tools: composer:v2, pecl
+        php-version: ${{ matrix.php-version }}
+        tools: composer:v2
         coverage: pcov
-        extensions: curl gettext intl, libxml mbstring simplexml xml zip
-        ini-values: zend.assertions=1
+
+    - name: Validate composer.json
+      run: composer validate --no-check-lock
 
     - name: Get Composer cache directory
       id: composer-cache
       run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
-    - name: Cache Composer dependencies
+    - name: Cache Composer packages
+      id: composer-cache
       uses: actions/cache@v2
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
-        restore-keys: ${{ runner.os }}-composer-
+        key: composer-${{ runner.os }}-${{ matrix.php-version }}-${{ hashFiles('**/composer.json') }}
+        restore-keys: |
+          composer-${{ runner.os }}-${{ matrix.php-version }}-${{ hashFiles('**/composer.json') }}
+          composer-${{ runner.os }}-${{ matrix.php-version }}-
+          composer-${{ runner.os }}-
+          composer-
 
     - name: Install dependencies
       run: composer update --prefer-dist --no-progress --no-interaction

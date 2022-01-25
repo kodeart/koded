@@ -4,16 +4,21 @@ namespace Koded\Framework;
 
 use Koded\{DIContainer, DIModule};
 use Koded\Framework\Auth\{AuthBackend, AuthProcessor, BearerAuthProcessor, SessionAuthBackend};
-use Koded\Framework\I18n\{I18n, I18nCatalog};
 use Koded\Http\{ServerRequest, ServerResponse};
 use Koded\Http\Interfaces\{Request, Response};
+use Koded\I18n\{I18n, I18nCatalog};
 use Koded\Logging\Log;
 use Koded\Logging\Processors\Cli;
 use Koded\Stdlib\{Config, Configuration, Immutable};
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
+use ReflectionClass;
+use function dirname;
+use function is_a;
+use function is_readable;
 use function Koded\Caching\simple_cache_factory;
+use function putenv;
 
 final class Module implements DIModule
 {
@@ -33,9 +38,9 @@ final class Module implements DIModule
         $container->bind(ResponseInterface::class, ServerResponse::class);
         // Core instances
         $container->share($conf = $this->configuration());
+        I18n::register(I18nCatalog::new($conf), true);
         $container->share(new Log(...$conf->get('logging', [])));
         $container->share(simple_cache_factory(...$conf->get('caching', [])));
-        $container->share(new I18n(I18nCatalog::new($conf)));
         $container->share($container->new(Router::class));
         // Default authentication
         $container->bind(AuthBackend::class, SessionAuthBackend::class);
@@ -48,13 +53,13 @@ final class Module implements DIModule
         if (empty($this->configuration)) {
             goto load;
         }
-        if (\is_a($this->configuration, Configuration::class, true)) {
+        if (is_a($this->configuration, Configuration::class, true)) {
             $factory->fromObject($this->configuration);
-            $factory->rootPath = \dirname((new \ReflectionClass($this->configuration))->getFileName());
-        } elseif (\is_readable($this->configuration)) {
-            \putenv(self::ENV_KEY . '=' . $this->configuration);
+            $factory->rootPath = dirname((new ReflectionClass($this->configuration))->getFileName());
+        } elseif (is_readable($this->configuration)) {
+            putenv(self::ENV_KEY . '=' . $this->configuration);
             $factory->fromEnvVariable(self::ENV_KEY);
-            $factory->rootPath = \dirname($this->configuration);
+            $factory->rootPath = dirname($this->configuration);
         }
         load:
         @$factory->fromEnvFile('.env');
@@ -68,9 +73,6 @@ final class Module implements DIModule
     {
         return new Immutable(
             [
-                // i18n settings
-                //'translation.dir' => __DIR__ . '/../locales',
-
                 // CORS overrides (all values are scalar)
                 'cors.disable' => false,
                 'cors.origin' => '',

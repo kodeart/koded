@@ -24,7 +24,7 @@ Built-in functionality:
 - I18n support (because the world is multilingual)
 - and more
 
-| Project                      | Status | Description
+| Package                      | Status | Description
 |-----------------------------:|--------|---------------------------------------------|
 | [container][koded-container] | [![koded-container-status]][koded-container-package] | DI container library (PSR-11)
 | [http][koded-http]           | [![koded-http-status]][koded-http-package]           | HTTP library (PSR-7, 17, 18)
@@ -43,7 +43,7 @@ Read the docs at [Koded Framework documentation][docs] page.
 
 [docs]: https://kodeart.github.io/koded
 
-[php-version]: https://img.shields.io/badge/php-%3E%3D%208.0-8892BF.svg
+[php-version]: https://img.shields.io/badge/php-%3E%3D%208.1-8892BF.svg
 [php-link]: https://php.net/
 [license-status]: https://img.shields.io/badge/License-BSD%203--Clause-blue.svg
 [license-link]: https://github.com/kodeart/koded/blob/master/LICENSE

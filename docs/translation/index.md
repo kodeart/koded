@@ -12,7 +12,7 @@ a "catalog" and accessed with translation function `__()`.
 function __(
   string $string,
   array $arguments = [],
-  string $locale = I18nCatalog::DEFAULT_LOCALE
+  string $locale = ''
 ): string
 ```
 
@@ -30,9 +30,9 @@ Both can be changed in your app configuration:
 <?php
 
 return [
-  'translation.catalog' => \Koded\Framework\I18n\GettextCatalog::class,
-  'translation.formatter' => \Koded\Framework\I18n\StrtrFormatter::class,
-  'translation.dir' => __DIR__ . '/locales/',
+  'translation.catalog' => \Koded\I18n\GettextCatalog::class,
+  'translation.formatter' => \Koded\I18n\StrtrFormatter::class,
+  'translation.dir' => __DIR__ . '/locale/',
   'translation.locale' => 'mk_MK',
 ];
 ```

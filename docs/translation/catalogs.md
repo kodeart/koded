@@ -21,11 +21,11 @@ translated strings are stored.
 
 ### DefaultCatalog
 
-The strings are stored in the `/locales/` application 
+The strings are stored in the `/locale/` application 
 directory in a `.php` file with a locale name
 
 ```
-locales
+locale
 ├── de_DE.php
 ├── en_US.php
 └── mk_MK.php
@@ -49,7 +49,7 @@ and all locales are expected to be of the same format.
 
 ```php
 
-# locales/en_US.php
+# locale/en_US.php
 
 <?php
 
@@ -77,7 +77,7 @@ The strings are stored in `.po/.mo` files within a proper
 directory structure:
 
 ```
-locales
+locale
 └── en_US
     └── LC_MESSAGES
         ├── messages.mo

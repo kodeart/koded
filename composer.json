@@ -16,10 +16,10 @@
   "require": {
     "php": "^8.1",
     "psr/http-server-middleware": "^1",
-    "koded/container": "^3.0",
+    "koded/container": "~3.0",
     "koded/cache-simple": "^3",
     "koded/http": "^3.1",
-    "koded/i18n": "^0.7",
+    "koded/i18n": "~0.9",
     "koded/logging": "^3.1",
     "koded/session": "2.*",
     "koded/stdlib": "6.0.2 as 5.1.1",
@@ -36,7 +36,7 @@
       "build/",
       "cache/",
       "docs/",
-      "locales/",
+      "locale/",
       "public/",
       "site/",
       "tests/"

@@ -46,7 +46,7 @@ class CorsMiddleware implements MiddlewareInterface
 
     /**
      * The configuration is used to force/override the CORS header values.
-     * By default none of them are set and have a commonly used values.
+     * By default, most of them are not predefined or have a commonly used values.
      *
      * Configuration directives:
      *
@@ -62,10 +62,10 @@ class CorsMiddleware implements MiddlewareInterface
     public function __construct(Configuration $config)
     {
         $this->disabled = (bool)$config->get('cors.disable');
-        $this->origin = trim($config->get('cors.origin'));
-        $this->methods = strtoupper(trim($config->get('cors.methods')));
-        $this->headers = trim($config->get('cors.headers'));
-        $this->expose = trim($config->get('cors.expose'));
+        $this->origin = trim($config->get('cors.origin')) ?: '*';
+        $this->methods = strtoupper(trim($config->get('cors.methods'))) ?: '*';
+        $this->headers = trim($config->get('cors.headers')) ?: '*';
+        $this->expose = trim($config->get('cors.expose')) ?: '*';
         $this->maxAge = (int)$config->get('cors.maxAge');
     }
 
@@ -83,7 +83,7 @@ class CorsMiddleware implements MiddlewareInterface
         if ($this->isSimpleRequest($request)) {
             return $this->responseForSimpleRequest($request, $response);
         }
-        return $response;
+        return $this->responseForActualRequest($request, $response);
     }
 
     private function isSimpleRequest(ServerRequestInterface $request): bool
@@ -118,14 +118,24 @@ class CorsMiddleware implements MiddlewareInterface
             return $response->withStatus(HttpStatus::FORBIDDEN);
         }
         $withCredentials = $request->hasHeader('Cookie');
-        $response = $response->withHeader(
-            'Access-Control-Allow-Origin',
-            $origin = $this->getOrigin($request, $withCredentials)
-        );
-        if ('*' !== $origin) {
+        if ($origin = $this->getOrigin($request, $withCredentials)) {
+            $response = $response->withHeader('Access-Control-Allow-Origin', $origin);
+        }
+        if ($withCredentials) {
             $response = $response->withHeader('Access-Control-Allow-Credentials', 'true');
         }
         return $response->withAddedHeader('Vary', 'Origin');
+    }
+
+    private function responseForActualRequest(
+        ServerRequestInterface $request,
+        ResponseInterface $response) : ResponseInterface
+    {
+        $response = $this->responseForSimpleRequest($request, $response);
+        if ($expose = $this->getExposedHeaders($request->hasHeader('Cookie'))) {
+            $response = $response->withHeader('Access-Control-Expose-Headers', $expose);
+        }
+        return $response;
     }
 
     /**
@@ -148,7 +158,7 @@ class CorsMiddleware implements MiddlewareInterface
             'Access-Control-Allow-Methods',
             $this->getAllowedMethods($request, $withCredentials)
         );
-        if ($headers = $this->getAllowedHeaders($request, $withCredentials)) {
+        if ($headers = $this->getPreflightAllowedHeaders($request)) {
             $response = $response->withHeader('Access-Control-Allow-Headers', $headers);
         }
         if ($expose = $this->getExposedHeaders($withCredentials)) {
@@ -180,14 +190,22 @@ class CorsMiddleware implements MiddlewareInterface
         bool $withCredentials): string
     {
         $methods = match (true) {
-            !empty($this->methods) => $this->methods,
-            !empty($method = $request->getAttribute('@http_methods')) => join(',', $method),
+            !empty($this->methods) && !str_contains('*', $this->methods) => $this->methods,
+            !empty($allowed = $request->getAttribute('@http_methods')) => join(',', $allowed),
             default => 'HEAD,OPTIONS',
         };
         if ($withCredentials && str_contains($methods, '*')) {
             return 'GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS';
         }
         return $methods;
+    }
+
+    private function getPreflightAllowedHeaders(ServerRequestInterface $request): string
+    {
+        if ($this->headers && !str_contains($this->headers, '*')) {
+            return $this->headers;
+        }
+        return $request->getHeaderLine('Access-Control-Request-Headers');
     }
 
     private function getAllowedHeaders(
@@ -203,7 +221,7 @@ class CorsMiddleware implements MiddlewareInterface
         $result = [];
         foreach (preg_split('/, */', $headers) as $header) {
             if (isset(self::SIMPLE_HEADERS[strtolower($header)])) {
-//                continue;
+                continue;
             }
             $result[] = $header;
         }

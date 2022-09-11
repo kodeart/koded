@@ -53,15 +53,13 @@ class CorsMiddlewareTest extends TestCase
         /** @var ResponseInterface $response */
         [, $response] = call_user_func($this->app);
 
-        $this->assertSame(HttpStatus::OK,
-                          $response->getStatusCode(),
-                          'CORS skipped');
+        $this->assertSame('*',
+                          $response->getHeaderLine('Access-Control-Allow-Origin'),
+                          'With all origins allowed');
 
-        $this->assertFalse($response->hasHeader('Access-Control-Allow-Origin'),
-                           'CORS skipped, Origin header is not set in the response');
-
-        $this->assertFalse($response->hasHeader('Access-Control-Allow-Credentials'),
-                           'CORS skipped, credentials header is not set in the response');
+        $this->assertSame('Authorization, X-Forwarded-With',
+                          $response->getHeaderLine('Access-Control-Expose-Headers'),
+                          'WIth default config exposed headers');
     }
 
     public function test_simple_method_with_content_type()
@@ -82,23 +80,6 @@ class CorsMiddlewareTest extends TestCase
         $this->assertSame('Origin',
                           $response->getHeaderLine('Vary'));
     }
-
-//    public function test_with_content_type_in_preflight_header()
-//    {
-//        $_SERVER['HTTP_COOKIE'] = 'test';
-//        $_SERVER['REQUEST_METHOD'] = 'OPTIONS';
-//        $_SERVER['HTTP_ORIGIN'] = '/';
-//        $_SERVER['CONTENT_TYPE'] = 'application/json';
-//        $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'] = 'POST';
-//        $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'] = 'Content-Type';
-//
-//        /** @var ResponseInterface $response */
-//        [, $response] = call_user_func($this->app);
-//
-//        $this->assertFalse($response->hasHeader('Content-Type'),
-//                           'Content-Type header is not set in the response');
-//    }
-
 
 
     protected function setUp(): void

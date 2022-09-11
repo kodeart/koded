@@ -28,7 +28,7 @@ class CorsMiddlewareWithConfigurationTest extends TestCase
                           $response->getHeaderLine('Access-Control-Allow-Origin'),
                           '(cors.origin) Overwritten by configuration');
 
-        $this->assertTrue($response->hasHeader('Access-Control-Allow-Credentials'),
+        $this->assertFalse($response->hasHeader('Access-Control-Allow-Credentials'),
                            'Allow-Credentials is not set');
     }
 
@@ -54,8 +54,6 @@ class CorsMiddlewareWithConfigurationTest extends TestCase
 
     public function test_preflight_request()
     {
-        $this->markTestSkipped('wip...');
-
         $_SERVER['REQUEST_METHOD'] = 'OPTIONS';
         $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'] = 'PUT';
 
@@ -70,7 +68,7 @@ class CorsMiddlewareWithConfigurationTest extends TestCase
                           $response->getHeaderLine('Access-Control-Allow-Methods'),
                           '(cors.methods) Overwritten by configuration');
 
-        $this->assertSame('X-Api-Token',
+        $this->assertSame('Content-Type, X-Api-Token',
                           $response->getHeaderLine('Access-Control-Allow-Headers'),
                           '(cors.headers) Overwritten by configuration');
 

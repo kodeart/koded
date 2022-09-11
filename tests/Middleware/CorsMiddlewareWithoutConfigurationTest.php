@@ -88,11 +88,11 @@ class CorsMiddlewareWithoutConfigurationTest extends TestCase
         $this->assertSame(
             'DELETE,POST,GET,HEAD,OPTIONS',
             $response->getHeaderLine('Access-Control-Allow-Methods'),
-            'Allowed-Methods header is added'
+            'Allowed-Methods with route handler methods'
         );
 
         $this->assertFalse($response->hasHeader('Access-Control-Allow-Headers'),
-                           'Allow-Headers is not set, because Request-Headers is not set in the request');
+                           'Allow-Headers is not set, because Request-Headers is not set');
 
         $this->assertSame(
             'Authorization, X-Forwarded-With',
@@ -156,8 +156,6 @@ class CorsMiddlewareWithoutConfigurationTest extends TestCase
      */
     public function test_preflight_with_allow_headers()
     {
-        $this->markTestSkipped('wip...');
-
         $_SERVER['HTTP_ORIGIN'] = 'http://example.org';
         $_SERVER['HTTP_COOKIE'] = 'foo=bar';
         $_SERVER['REQUEST_METHOD'] = 'OPTIONS';
@@ -168,9 +166,30 @@ class CorsMiddlewareWithoutConfigurationTest extends TestCase
         [, $response] = call_user_func($this->app);
 
         $this->assertSame(
-            'Authorization,X-Api-Key',
+            'Accept, Authorization, Content-type, X-Api-Key',
             $response->getHeaderLine('Access-Control-Allow-Headers'),
-            'Simple headers are filtered out'
+            'Simple headers are not filtered out'
+        );
+    }
+
+    /**
+     * @depends test_preflight_with_allow_headers
+     */
+    public function test_non_simple_request_with_allow_headers()
+    {
+        $_SERVER['HTTP_ORIGIN'] = 'http://example.org';
+        $_SERVER['HTTP_COOKIE'] = 'foo=bar';
+        $_SERVER['REQUEST_METHOD'] = 'DELETE';
+        $_SERVER['HTTP_ACCEPT'] = 'application/json';
+        $_SERVER['HTTP_AUTHORIZATION'] = 'very secret token';
+        $_SERVER['HTTP_CONTENT_TYPE'] = 'application/json';
+        $_SERVER['HTTP_X_API_KEY'] = 'api key';
+
+        [, $response] = call_user_func($this->app);
+
+        $this->assertEmpty(
+            $response->getHeaderLine('Access-Control-Allow-Headers'),
+            'Preflight headers are not set'
         );
     }
 
@@ -188,6 +207,7 @@ class CorsMiddlewareWithoutConfigurationTest extends TestCase
         unset($_SERVER['REQUEST_URI']);
         unset($_SERVER['REQUEST_METHOD']);
         unset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']);
+        unset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']);
         unset($_SERVER['HTTP_ORIGIN']);
         unset($_SERVER['HTTP_COOKIE']);
         $this->app = null;

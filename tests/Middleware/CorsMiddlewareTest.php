@@ -32,23 +32,17 @@ class CorsMiddlewareTest extends TestCase
                            'CORS skipped, credentials header is not set in the response');
     }
 
-    public function test_when_origin_equals_request_uri()
+    public function test_credentials_with_origin_header()
     {
+        $_SERVER['HTTP_COOKIE'] = 'foo=bar';
         $_SERVER['HTTP_ORIGIN'] = 'http://example.org';
         $_SERVER['REQUEST_URI'] = 'http://example.org/';
 
         /** @var ResponseInterface $response */
         [, $response] = call_user_func($this->app);
 
-        $this->assertSame(HttpStatus::OK,
-                          $response->getStatusCode(),
-                          'CORS skipped');
-
-        $this->assertFalse($response->hasHeader('Access-Control-Allow-Origin'),
-                           'CORS skipped, Origin header is not set in the response');
-
-        $this->assertFalse($response->hasHeader('Access-Control-Allow-Credentials'),
-                           'CORS skipped, credentials header is not set in the response');
+        $this->assertTrue($response->hasHeader('Access-Control-Allow-Credentials'),
+                           'Allow-Credentials is automatically added if origin is not "*"');
     }
 
     public function test_non_simple_method()
@@ -89,6 +83,24 @@ class CorsMiddlewareTest extends TestCase
                           $response->getHeaderLine('Vary'));
     }
 
+//    public function test_with_content_type_in_preflight_header()
+//    {
+//        $_SERVER['HTTP_COOKIE'] = 'test';
+//        $_SERVER['REQUEST_METHOD'] = 'OPTIONS';
+//        $_SERVER['HTTP_ORIGIN'] = '/';
+//        $_SERVER['CONTENT_TYPE'] = 'application/json';
+//        $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'] = 'POST';
+//        $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'] = 'Content-Type';
+//
+//        /** @var ResponseInterface $response */
+//        [, $response] = call_user_func($this->app);
+//
+//        $this->assertFalse($response->hasHeader('Content-Type'),
+//                           'Content-Type header is not set in the response');
+//    }
+
+
+
     protected function setUp(): void
     {
         unset($_SERVER['HTTP_COOKIE']);
@@ -106,6 +118,8 @@ class CorsMiddlewareTest extends TestCase
         unset($_SERVER['HTTP_ORIGIN']);
         unset($_SERVER['CONTENT_TYPE']);
         unset($_SERVER['HTTP_COOKIE']);
+        unset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']);
+        unset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']);
         $this->app = null;
     }
 

@@ -28,7 +28,7 @@ class CorsMiddlewareWithConfigurationTest extends TestCase
                           $response->getHeaderLine('Access-Control-Allow-Origin'),
                           '(cors.origin) Overwritten by configuration');
 
-        $this->assertFalse($response->hasHeader('Access-Control-Allow-Credentials'),
+        $this->assertTrue($response->hasHeader('Access-Control-Allow-Credentials'),
                            'Allow-Credentials is not set');
     }
 

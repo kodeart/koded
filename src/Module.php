@@ -73,6 +73,9 @@ final class Module implements DIModule
     {
         return new Immutable(
             [
+                // I18n directives
+                'translation.dir' => __DIR__ . '/locale',
+
                 // CORS overrides (all values are scalar)
                 'cors.disable' => false,
                 'cors.origin' => '',
@@ -81,6 +84,7 @@ final class Module implements DIModule
                 'cors.expose' => 'Authorization, X-Forwarded-With',
                 'cors.maxAge' => 0,
 
+                // Logging
                 'logging' => [
                     [
                         [

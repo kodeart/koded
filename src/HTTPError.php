@@ -7,11 +7,12 @@ use Koded\Http\StatusCode;
 use RuntimeException;
 use Throwable;
 use function array_filter;
-use function Koded\Stdlib\{json_serialize, xml_serialize};
+use function array_merge;
+use function Koded\Stdlib\json_serialize;
+use function Koded\Stdlib\xml_serialize;
 use function rawurldecode;
 
-
-interface KodedHTTPError
+interface HTTPException
 {
     public function getStatusCode(): int;
 
@@ -24,6 +25,8 @@ interface KodedHTTPError
     public function getInstance(): string;
 
     public function getHeaders(): iterable;
+
+    public function setInstance(string $value): static;
 
     public function setMember(string $name, mixed $value): static;
 
@@ -50,7 +53,7 @@ interface KodedHTTPError
  *
  * @link https://tools.ietf.org/html/rfc7807
  */
-class HTTPError extends RuntimeException implements KodedHTTPError
+class HTTPError extends RuntimeException implements HTTPException
 {
     /**
      * Extension members for problem type definitions may extend the
@@ -83,7 +86,8 @@ class HTTPError extends RuntimeException implements KodedHTTPError
         protected ?array $headers = [],
         ?Throwable       $previous = null)
     {
-        $this->code = $status ?: HttpStatus::I_AM_TEAPOT;
+        $this->code = $status;
+        $this->code = static::status($this);
         $this->message = $title ?: HttpStatus::CODE[$this->code];
         [
             'title'    => $this->title,
@@ -92,6 +96,14 @@ class HTTPError extends RuntimeException implements KodedHTTPError
             'instance' => $this->instance
         ] = $this->toArray();
         parent::__construct($this->message, $this->code, $previous);
+    }
+
+    public static function status(
+        Throwable $ex,
+        int $prefer = HttpStatus::I_AM_TEAPOT): int
+    {
+        $code = $ex->getCode();
+        return ($code < 100 || $code > 599) ? $prefer : $code;
     }
 
     public function getStatusCode(): int
@@ -124,6 +136,12 @@ class HTTPError extends RuntimeException implements KodedHTTPError
         return $this->headers ?? [];
     }
 
+    public function setInstance(string $value): static
+    {
+        $this->instance = $value;
+        return $this;
+    }
+
     public function setMember(string $name, mixed $value): static
     {
         $this->members[$name] = $value;
@@ -145,11 +163,8 @@ class HTTPError extends RuntimeException implements KodedHTTPError
      */
     public function toArray(): array
     {
-        $status = ($this->code < 100 || $this->code > 599)
-            ? HttpStatus::I_AM_TEAPOT
-            : $this->code;
-
-        return \array_merge([
+        $status = static::status($this);
+        return array_merge([
             'status'   => $status,
             'instance' => $this->instance,
             'detail'   => $this->detail ?: StatusCode::description($status),
@@ -166,7 +181,7 @@ class HTTPError extends RuntimeException implements KodedHTTPError
         ];
     }
 
-    public function __unserialize(array $data): void
+    public function __unserialize(array $serialized): void
     {
         list(
             'status'   => $this->code,
@@ -177,6 +192,6 @@ class HTTPError extends RuntimeException implements KodedHTTPError
             'instance' => $this->instance,
             'members'  => $this->members,
             'headers'  => $this->headers,
-        ) = $data;
+        ) = $serialized;
     }
 }

@@ -19,6 +19,7 @@ use Throwable;
 use TypeError;
 use Whoops\Run as WoopsRunner;
 use function array_keys;
+use function array_merge;
 use function array_values;
 use function call_user_func_array;
 use function date_default_timezone_set;
@@ -43,10 +44,11 @@ class App implements RequestHandlerInterface
     private int $offset = 0;
     /** @var array<int, MiddlewareInterface> */
     private array $stack = [];
+    /** @var array<string, array> */
     private array $explicit = [];
     /** @var array<string, callable|null> */
     private array $handlers = [];
-    private mixed $responder;
+    private readonly mixed $responder;
     private readonly DIContainer $container;
 
     public function __construct(
@@ -60,16 +62,21 @@ class App implements RequestHandlerInterface
         $this->withErrorHandler(Exception::class, 'static::phpErrorHandler');
         $this->withErrorHandler(Error::class, 'static::phpErrorHandler');
         $this->container = new DIContainer(new Module($config), ...$modules);
-        $this->middleware = [new GzipMiddleware, CorsMiddleware::class, ...$middleware];
+        $this->middleware = [new GzipMiddleware, ...$middleware, CorsMiddleware::class];
     }
 
+    /**
+     * @return mixed
+     * @throws mixed
+     */
     public function __invoke(): mixed
     {
         try {
-            $request = $this->container->new(ServerRequestInterface::class)
+            $request = $this->container
+                ->new(ServerRequestInterface::class)
                 ->withAttribute('@media', $this->container->get(Configuration::class)->get('media'));
 
-            $this->responder = $this->getResponder($request, $uriTemplate);
+            $this->responder = $this->responder($request, $uriTemplate);
             $this->initialize($uriTemplate);
             $response = $this->handle($request);
         } catch (Throwable $exception) {
@@ -141,7 +148,7 @@ class App implements RequestHandlerInterface
             // (template, resource, middleware, explicit)
             $route += ['', '', [], false];
             [$uriTemplate, $resource, $mw, $explicit] = $route;
-            $this->route($prefix . $uriTemplate, $resource, \array_merge($middleware, $mw), $explicit);
+            $this->route($prefix . $uriTemplate, $resource, array_merge($middleware, $mw), $explicit);
         }
         return $this;
     }
@@ -203,7 +210,7 @@ class App implements RequestHandlerInterface
         $this->stack = array_values($this->stack);
     }
 
-    private function getResponder(
+    private function responder(
         ServerRequestInterface &$request,
         string|null &$uriTemplate): callable
     {
@@ -286,7 +293,7 @@ class App implements RequestHandlerInterface
         $this->composeErrorResponse(
             $request,
             $response,
-            new HTTPError(($ex->getCode() < 100 || $ex->getCode() > 599) ? HttpStatus::CONFLICT : $ex->getCode(),
+            new HTTPError(HTTPError::status($ex, HttpStatus::CONFLICT),
                 title:    $title,
                 detail:   $ex->getMessage(),
                 previous: $ex

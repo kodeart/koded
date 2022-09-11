@@ -195,7 +195,7 @@ class CorsMiddleware implements MiddlewareInterface
         bool $withCredentials): string
     {
         $headers = $this->headers ?: $request->getHeaderLine('Access-Control-Request-Headers');
-        if ($withCredentials && str_contains($headers, '*')) {
+        if (str_contains($headers, '*')) {
             // Return here and let the client process the consequences of
             // the forced headers from configuration, or request headers
             return $headers;
@@ -203,7 +203,7 @@ class CorsMiddleware implements MiddlewareInterface
         $result = [];
         foreach (preg_split('/, */', $headers) as $header) {
             if (isset(self::SIMPLE_HEADERS[strtolower($header)])) {
-                continue;
+//                continue;
             }
             $result[] = $header;
         }

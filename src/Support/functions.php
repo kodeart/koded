@@ -61,7 +61,7 @@ function default_serialize_error(
     ResponseInterface $response,
     HTTPError $exception): ResponseInterface
 {
-    $exception->setMember('instance', $request->getUri()->getPath());
+    $exception->setInstance($request->getUri()->getPath());
     $response = $response
         ->withHeader('X-Error-Status', join(' ', [$response->getStatusCode(), $response->getReasonPhrase()]))
         ->withHeader('X-Error-Message', str_replace(["\n", "\r", "\t"], ' ', $exception->getDetail()))

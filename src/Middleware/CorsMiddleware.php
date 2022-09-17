@@ -117,7 +117,9 @@ class CorsMiddleware implements MiddlewareInterface
             // https://fetch.spec.whatwg.org/#http-responses
             return $response->withStatus(HttpStatus::FORBIDDEN);
         }
+
         $withCredentials = $request->hasHeader('Cookie');
+
         if ($origin = $this->getOrigin($request, $withCredentials)) {
             $response = $response->withHeader('Access-Control-Allow-Origin', $origin);
         }
@@ -153,7 +155,8 @@ class CorsMiddleware implements MiddlewareInterface
             return $response->withStatus(HttpStatus::FORBIDDEN);
         }
         $response = $this->responseForSimpleRequest($request, $response);
-        $withCredentials = $request->hasHeader('Cookie');
+//        $withCredentials = $request->hasHeader('Cookie');
+        $withCredentials = true;
         $response = $response->withHeader(
             'Access-Control-Allow-Methods',
             $this->getAllowedMethods($request, $withCredentials)

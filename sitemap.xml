@@ -2,92 +2,92 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://kodeart.github.io/koded/</loc>
-         <lastmod>2022-09-17</lastmod>
+         <lastmod>2022-09-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://kodeart.github.io/koded/default-dependencies/</loc>
-         <lastmod>2022-09-17</lastmod>
+         <lastmod>2022-09-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://kodeart.github.io/koded/exception-handlers/</loc>
-         <lastmod>2022-09-17</lastmod>
+         <lastmod>2022-09-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://kodeart.github.io/koded/get-started/</loc>
-         <lastmod>2022-09-17</lastmod>
+         <lastmod>2022-09-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://kodeart.github.io/koded/shared-instances/</loc>
-         <lastmod>2022-09-17</lastmod>
+         <lastmod>2022-09-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://kodeart.github.io/koded/configure/</loc>
-         <lastmod>2022-09-17</lastmod>
+         <lastmod>2022-09-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://kodeart.github.io/koded/configure/modules/</loc>
-         <lastmod>2022-09-17</lastmod>
+         <lastmod>2022-09-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://kodeart.github.io/koded/middleware/builtin/</loc>
-         <lastmod>2022-09-17</lastmod>
+         <lastmod>2022-09-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://kodeart.github.io/koded/middleware/cors/</loc>
-         <lastmod>2022-09-17</lastmod>
+         <lastmod>2022-09-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://kodeart.github.io/koded/middleware/psr-15/</loc>
-         <lastmod>2022-09-17</lastmod>
+         <lastmod>2022-09-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://kodeart.github.io/koded/routing/</loc>
-         <lastmod>2022-09-17</lastmod>
+         <lastmod>2022-09-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://kodeart.github.io/koded/routing/caching/</loc>
-         <lastmod>2022-09-17</lastmod>
+         <lastmod>2022-09-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://kodeart.github.io/koded/routing/parameters/</loc>
-         <lastmod>2022-09-17</lastmod>
+         <lastmod>2022-09-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://kodeart.github.io/koded/translation/</loc>
-         <lastmod>2022-09-17</lastmod>
+         <lastmod>2022-09-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://kodeart.github.io/koded/translation/catalogs/</loc>
-         <lastmod>2022-09-17</lastmod>
+         <lastmod>2022-09-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://kodeart.github.io/koded/translation/formatters/</loc>
-         <lastmod>2022-09-17</lastmod>
+         <lastmod>2022-09-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://kodeart.github.io/koded/utils/caching/</loc>
-         <lastmod>2022-09-17</lastmod>
+         <lastmod>2022-09-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://kodeart.github.io/koded/utils/logger/</loc>
-         <lastmod>2022-09-17</lastmod>
+         <lastmod>2022-09-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>

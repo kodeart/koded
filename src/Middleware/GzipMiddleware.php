@@ -30,7 +30,7 @@ class GzipMiddleware implements MiddlewareInterface
         $response->getBody()->rewind();
         return $response
             ->withHeader(self::CONTENT_ENCODING, 'gzip')
-            ->withAddedHeader('Vary', self::CONTENT_ENCODING)
+            ->withAddedHeader('Vary', self::ACCEPT_ENCODING)
             ->withBody(create_stream(
                 gzencode($response->getBody()->getContents(), 7),
                 $response->getBody()->getMetadata('mode')

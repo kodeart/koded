@@ -13,7 +13,7 @@ class CorsMiddlewareTest extends TestCase
 {
     private ?App $app;
 
-    public function test_simple_method()
+    public function test_without_origin_header()
     {
         /** @var ResponseInterface $response */
         [$request, $response] = call_user_func($this->app);
@@ -32,62 +32,60 @@ class CorsMiddlewareTest extends TestCase
                            'CORS skipped, credentials header is not set in the response');
     }
 
-    public function test_credentials_with_origin_header()
+    public function test_with_same_host_and_origin()
     {
         $_SERVER['HTTP_COOKIE'] = 'foo=bar';
         $_SERVER['HTTP_ORIGIN'] = 'http://example.org';
-        $_SERVER['REQUEST_URI'] = 'http://example.org/';
 
         /** @var ResponseInterface $response */
         [, $response] = call_user_func($this->app);
 
-        $this->assertTrue($response->hasHeader('Access-Control-Allow-Credentials'),
-                           'Allow-Credentials is automatically added if origin is not "*"');
+        $this->assertFalse($response->hasHeader('Access-Control-Allow-Origin'),
+            'CORS skipped, Origin and host are the same');
     }
 
-    public function test_non_simple_method()
+    public function test_credentials_with_origin_header()
+    {
+        $_SERVER['HTTP_COOKIE'] = 'foo=bar';
+        $_SERVER['HTTP_ORIGIN'] = 'http://example.net';
+
+        /** @var ResponseInterface $response */
+        [, $response] = call_user_func($this->app);
+
+        $this->assertSame('true',
+            $response->getHeaderLine('Access-Control-Allow-Credentials'),
+            'Allow-Credentials is automatically added if origin is not "*"');
+
+        $this->assertSame('http://example.net',
+            $response->getHeaderLine('Access-Control-Allow-Origin'));
+
+        $this->assertTrue($response->hasHeader('Access-Control-Expose-Headers'),
+            'Actual response has specified expose headers');
+    }
+
+    public function test_non_simple_request_method()
     {
         $_SERVER['REQUEST_METHOD'] = 'DELETE';
-        $_SERVER['HTTP_ORIGIN'] = 'http://example.org';
+        $_SERVER['HTTP_ORIGIN'] = 'http://example.net';
 
         /** @var ResponseInterface $response */
         [, $response] = call_user_func($this->app);
 
-        $this->assertSame('http://example.org',
-                          $response->getHeaderLine('Access-Control-Allow-Origin'),
-                          'Non-simple requests has Origin header');
+        $this->assertSame('http://example.net',
+            $response->getHeaderLine('Access-Control-Allow-Origin'),
+            'Non-simple requests has Origin header');
 
-        $this->assertSame('Authorization, X-Forwarded-With',
-                          $response->getHeaderLine('Access-Control-Expose-Headers'),
-                          'With default config exposed headers');
+        $this->assertFalse($response->hasHeader('Access-Control-Allow-Methods'),
+                          'Actual request does not have Allow-Methods');
+
+        $this->assertTrue($response->hasHeader('Access-Control-Expose-Headers'),
+                          'Actual response has specified expose headers');
     }
-
-    public function test_simple_method_with_content_type()
-    {
-        $this->markTestSkipped();
-
-        $_SERVER['HTTP_ORIGIN'] = '/';
-        $_SERVER['CONTENT_TYPE'] = 'application/x-www-form-urlencoded';
-
-        /** @var ResponseInterface $response */
-        [, $response] = call_user_func($this->app);
-
-        $this->assertSame('*',
-                          $response->getHeaderLine('Access-Control-Allow-Origin'),
-                          'CORS middleware skips processing and sets Origin to asterisk (*)');
-
-        $this->assertFalse($response->hasHeader('Access-Control-Allow-Credentials'),
-                           'CORS credentials header is not set in the response');
-
-        $this->assertSame('Origin',
-                          $response->getHeaderLine('Vary'));
-    }
-
 
     protected function setUp(): void
     {
         unset($_SERVER['HTTP_COOKIE']);
-        $_SERVER['REQUEST_URI'] = '/';
+        $_SERVER['REQUEST_URI'] = 'http://example.org/';
 
         $this->app = (new App(
             renderer: [$this, '_renderer'],

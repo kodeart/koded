@@ -15,19 +15,17 @@ class CorsMiddlewareWithoutConfigurationTest extends TestCase
 
     public function test_get_method_without_credentials()
     {
-        $this->markTestSkipped();
-
         unset($_SERVER['HTTP_COOKIE']);
+
         $_SERVER['HTTP_ORIGIN'] = 'http://example.org';
 
         /** @var ResponseInterface $response */
         [, $response] = call_user_func($this->app);
 
         $this->assertSame(
-            '*',
+            'http://example.org',
             $response->getHeaderLine('Access-Control-Allow-Origin'),
-            '(simple CORS request) Allow-Origin is set to "*" for GET method
-            because there is no request cookie (no credentials)');
+            '(simple CORS request) Allow-Origin is set');
 
         $this->assertFalse($response->hasHeader('Access-Control-Allow-Credentials'),
                            'Allow-Credentials is not set');
@@ -36,9 +34,10 @@ class CorsMiddlewareWithoutConfigurationTest extends TestCase
 
     public function test_get_method_with_credentials()
     {
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+
         $_SERVER['HTTP_ORIGIN'] = 'http://example.org';
         $_SERVER['HTTP_COOKIE'] = 'foo=bar';
-        $_SERVER['REQUEST_METHOD'] = 'GET';
 
         /**
          * @var ServerRequestInterface $request
@@ -46,29 +45,34 @@ class CorsMiddlewareWithoutConfigurationTest extends TestCase
          */
         [$request, $response] = call_user_func($this->app);
 
-        // Response object
-
-        $this->assertSame(
-            'http://example.org',
-            $response->getHeaderLine('Access-Control-Allow-Origin'),
-            'Allow-Origin header is same as the Origin header value
-            because the cookie is set (credentials)');
-
         // Request object
 
         $this->assertTrue($request->hasHeader('Origin'));
 
         $this->assertSame(['DELETE', 'POST', 'GET', 'HEAD', 'OPTIONS'],
             $request->getAttribute('@http_methods'));
+
+        // Response object
+
+        $this->assertSame(
+            'http://example.org',
+            $response->getHeaderLine('Access-Control-Allow-Origin'),
+            'Allow-Origin header is same as the Origin header value');
+
+        $this->assertSame(
+            'true',
+            $response->getHeaderLine('Access-Control-Allow-Credentials'),
+            'Because the cookie is set (credentials)'
+        );
     }
 
 
     public function test_preflight_request_with_credentials()
     {
-        $_SERVER['HTTP_ORIGIN'] = 'http://example.org';
-        $_SERVER['HTTP_COOKIE'] = 'foo=bar';
         $_SERVER['REQUEST_METHOD'] = 'OPTIONS';
 
+        $_SERVER['HTTP_ORIGIN'] = 'http://example.org';
+        $_SERVER['HTTP_COOKIE'] = 'foo=bar';
         $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'] = 'POST';
 
         /** @var ResponseInterface $response */
@@ -81,6 +85,7 @@ class CorsMiddlewareWithoutConfigurationTest extends TestCase
             $response->getHeaderLine('Access-Control-Allow-Origin'),
             'Allow-Origin header is same as Origin in the request'
         );
+
         $this->assertSame(
             'true',
             $response->getHeaderLine('Access-Control-Allow-Credentials'),
@@ -123,12 +128,12 @@ class CorsMiddlewareWithoutConfigurationTest extends TestCase
      */
     public function test_options_method_for_not_allowed_method()
     {
-        $_SERVER['HTTP_ORIGIN'] = 'http://example.org';
-        $_SERVER['HTTP_COOKIE'] = 'foo=bar';
         $_SERVER['REQUEST_METHOD'] = 'OPTIONS';
 
-        $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'] = 'PUT';
+        $_SERVER['HTTP_ORIGIN'] = 'http://example.org';
+        $_SERVER['HTTP_COOKIE'] = 'foo=bar';
 
+        $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'] = 'PUT';
         $_SERVER['HTTP_CONTENT_TYPE'] = 'application/json';
 
         /** @var ResponseInterface $response */
@@ -158,9 +163,10 @@ class CorsMiddlewareWithoutConfigurationTest extends TestCase
      */
     public function test_preflight_with_allow_headers()
     {
+        $_SERVER['REQUEST_METHOD'] = 'OPTIONS';
+
         $_SERVER['HTTP_ORIGIN'] = 'http://example.org';
         $_SERVER['HTTP_COOKIE'] = 'foo=bar';
-        $_SERVER['REQUEST_METHOD'] = 'OPTIONS';
 
         $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'] = 'PUT';
         $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'] = 'Accept, Authorization, Content-type, X-Api-Key';
@@ -179,9 +185,10 @@ class CorsMiddlewareWithoutConfigurationTest extends TestCase
      */
     public function test_non_simple_request_with_allow_headers()
     {
+        $_SERVER['REQUEST_METHOD'] = 'DELETE';
+
         $_SERVER['HTTP_ORIGIN'] = 'http://example.org';
         $_SERVER['HTTP_COOKIE'] = 'foo=bar';
-        $_SERVER['REQUEST_METHOD'] = 'DELETE';
         $_SERVER['HTTP_ACCEPT'] = 'application/json';
         $_SERVER['HTTP_AUTHORIZATION'] = 'very secret token';
         $_SERVER['HTTP_CONTENT_TYPE'] = 'application/json';

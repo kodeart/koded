@@ -62,31 +62,37 @@ class CorsMiddlewareDisabledTest extends TestCase
     {
         $_SERVER['REQUEST_METHOD'] = 'OPTIONS';
         $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'] = 'PUT';
+        $_SERVER['HTTP_CACHE_CONTROL'] = 'no-cache';
 
         /** @var ResponseInterface $response */
-        [, $response] = call_user_func($this->app);
+        [$req, $response] = call_user_func($this->app);
 
         $this->assertSame(HttpStatus::FORBIDDEN,
                           $response->getStatusCode(),
                           '(cors.disable=TRUE) Forced status code to Forbidden');
 
         $this->assertFalse($response->hasHeader('Access-Control-Allow-Origin'),
-                          '(cors.origin) Disabled by configuration');
+                           '(cors.disable=TRUE) cors origin disabled by configuration');
 
         $this->assertFalse($response->hasHeader('Access-Control-Allow-Methods'),
-                          '(cors.methods) Disabled by configuration');
+                           '(cors.disable=TRUE) cors methods disabled by configuration');
 
         $this->assertFalse($response->hasHeader('Access-Control-Allow-Credentials'),
                            '(cors.disable=TRUE) Allow-Credentials is not set');
 
         $this->assertFalse($response->hasHeader('Access-Control-Allow-Headers'),
-                          '(cors.headers) Disabled by configuration');
+                           '(cors.headers) Disabled by configuration');
 
         $this->assertFalse($response->hasHeader('Access-Control-Expose-Headers'),
-                          '(cors.expose) Disabled by configuration');
+                           '(cors.expose) Disabled by configuration');
 
-        $this->assertSame('text/plain',
-                          $response->getHeaderLine('Content-Type'));
+        $this->assertSame('',
+                          $response->getHeaderLine('Content-Type'),
+                          '(cors.disable=TRUE) Content-Type is not set');
+
+        $this->assertFalse($response->hasHeader('Cache-Control'));
+
+        $this->assertFalse($response->hasHeader('Allow'));
     }
 
 

@@ -81,7 +81,7 @@ final class Module implements DIModule
                 'cors.origin' => '',
                 'cors.methods' => '',
                 'cors.headers' => '',
-                'cors.expose' => 'Authorization, X-Forwarded-With',
+                'cors.expose' => '',
                 'cors.maxAge' => 0,
 
                 // Logging

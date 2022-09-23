@@ -102,7 +102,7 @@ class CorsMiddlewareWithoutConfigurationTest extends TestCase
                            'Allow-Headers is not set, because Request-Headers is not set');
 
         $this->assertSame(
-            'Authorization, X-Forwarded-With',
+            '',
             $response->getHeaderLine('Access-Control-Expose-Headers'),
             'Default exposed headers from configuration are set in the response headers'
         );

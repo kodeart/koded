@@ -58,9 +58,6 @@ class CorsMiddlewareTest extends TestCase
 
         $this->assertSame('http://example.net',
             $response->getHeaderLine('Access-Control-Allow-Origin'));
-
-        $this->assertTrue($response->hasHeader('Access-Control-Expose-Headers'),
-            'Actual response has specified expose headers');
     }
 
     public function test_non_simple_request_method()
@@ -77,9 +74,6 @@ class CorsMiddlewareTest extends TestCase
 
         $this->assertFalse($response->hasHeader('Access-Control-Allow-Methods'),
                           'Actual request does not have Allow-Methods');
-
-        $this->assertTrue($response->hasHeader('Access-Control-Expose-Headers'),
-                          'Actual response has specified expose headers');
     }
 
     protected function setUp(): void

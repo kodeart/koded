@@ -6,11 +6,13 @@ use Koded\Stdlib\UUID;
 use Psr\SimpleCache\CacheInterface;
 use Throwable;
 use function array_filter;
+use function array_keys;
 use function assert;
 use function crc32;
 use function explode;
 use function is_object;
-use function Koded\Stdlib\{json_serialize, json_unserialize};
+use function Koded\Stdlib\json_serialize;
+use function Koded\Stdlib\json_unserialize;
 use function preg_match;
 use function preg_match_all;
 use function sprintf;
@@ -181,7 +183,7 @@ class Router
             title: "Invalid route parameter type $type",
             detail: 'Use one of the supported parameter types',
             instance: $template,
-        ))->setMember('supported-types', \array_keys($types));
+        ))->setMember('supported-types', array_keys($types));
     }
 
     private function assertIdentityAndPaths(

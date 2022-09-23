@@ -7,7 +7,7 @@ use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 
 class XPoweredByMiddleware implements MiddlewareInterface
 {
-    private string|null $value;
+    private readonly string|null $value;
 
     public function __construct(string|null $value = null)
     {

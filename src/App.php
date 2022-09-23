@@ -223,9 +223,9 @@ class App implements RequestHandlerInterface
         foreach ($match['params'] ?? [] as $name => $value) {
             $request = $request->withAttribute($name, $value);
         }
-        $this->container->get(LoggerInterface::class)->debug('> {method} {dir}', [
+        $this->container->get(LoggerInterface::class)->debug('> {method} {path}', [
             'method' => $request->getMethod(),
-            'dir' => $path
+            'path' => $path
         ]);
         if (Request::OPTIONS === $method = $request->getMethod()) {
             return create_options_response($allowed);

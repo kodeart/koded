@@ -84,8 +84,12 @@ class CorsMiddleware implements MiddlewareInterface
         }
         $response = $this
             ->addOriginToResponse($request, new ServerResponse('', HttpStatus::NO_CONTENT))
+            ->withHeader('Access-Control-Allow-Methods', $this->getAllowedMethods($request))
+            ->withHeader('Access-Control-Allow-Credentials', 'true')
             ->withHeader('Content-Type', 'text/plain')
-            ->withHeader('Access-Control-Allow-Methods', $this->getAllowedMethods($request));
+            ->withAddedHeader('Vary', 'Origin')
+            ->withoutHeader('Cache-Control')
+            ->withoutHeader('Allow');
 
         if ($headers = $this->getAllowedHeaders($request)) {
             $response = $response->withHeader('Access-Control-Allow-Headers', $headers);
@@ -96,9 +100,7 @@ class CorsMiddleware implements MiddlewareInterface
         if ($this->maxAge > 0) {
             $response = $response->withHeader('Access-Control-Max-Age', (string)$this->maxAge);
         }
-        return $response
-            ->withoutHeader('Cache-Control')
-            ->withoutHeader('Allow');
+        return $response;
     }
 
     private function addOriginToResponse(

@@ -101,10 +101,9 @@ class CorsMiddlewareWithoutConfigurationTest extends TestCase
         $this->assertFalse($response->hasHeader('Access-Control-Allow-Headers'),
                            'Allow-Headers is not set, because Request-Headers is not set');
 
-        $this->assertSame(
-            '',
-            $response->getHeaderLine('Access-Control-Expose-Headers'),
-            'Default exposed headers from configuration are set in the response headers'
+        $this->assertFalse(
+            $response->hasHeader('Access-Control-Expose-Headers'),
+            'Default exposed headers from configuration are not set in the response headers'
         );
 
         $this->assertFalse(

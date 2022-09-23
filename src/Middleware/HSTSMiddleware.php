@@ -10,8 +10,8 @@ use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 
 class HSTSMiddleware implements MiddlewareInterface
 {
-    private readonly int $maxAge = 0;
-    private readonly string $includeSubDomains = '';
+    private int $maxAge = 0;
+    private string $includeSubDomains = '';
 
     public function __construct(Configuration $settings)
     {

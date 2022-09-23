@@ -8,7 +8,7 @@ use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 class CallableMiddleware implements MiddlewareInterface
 {
     /** @var callable $callback */
-    private $callback;
+    private readonly $callback;
 
     public function __construct(callable $callback)
     {

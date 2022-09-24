@@ -22,12 +22,17 @@ class CorsMiddlewareRequestMethodsTest extends TestCase
         [, $response] = call_user_func($this->app);
 
         $this->assertSame(
+            HttpStatus::NO_CONTENT,
+            $response->getStatusCode()
+        );
+
+        $this->assertSame(
             'HEAD,OPTIONS',
             $response->getHeaderLine('Access-Control-Allow-Methods'),
             'Allow-Methods set to default value (HEAD,OPTIONS)');
     }
 
-    public function test_non_supported_cors_method()
+    public function test_non_implemented_method()
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_SERVER['HTTP_ORIGIN'] = 'http://example.net';

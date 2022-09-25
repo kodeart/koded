@@ -48,7 +48,7 @@ class App implements RequestHandlerInterface
     private array $explicit = [];
     /** @var array<string, callable|null> */
     private array $handlers = [];
-    private readonly mixed $responder;
+    private mixed $responder;
     private readonly DIContainer $container;
 
     public function __construct(
@@ -313,10 +313,17 @@ class App implements RequestHandlerInterface
         ResponseInterface &$response,
         HTTPError $ex): void
     {
-        $response = $response->withStatus($ex->getCode());
+        $response = $response->withStatus($ex->getCode())
+            ->withAddedHeader('Vary', 'Content-Type');
+
         foreach ($ex->getHeaders() as $name => $value) {
             $response = $response->withHeader($name, $value);
         }
+        // Process middleware
+        $this->responder = fn() => $response;
+        $this->initialize(null);
+        $response = $this->handle($request);
+
         try {
             $response = call_user_func_array(
                 $this->container->get('$errorSerializer'),

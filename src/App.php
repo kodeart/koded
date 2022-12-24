@@ -13,7 +13,7 @@ use Koded\Stdlib\Configuration;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 use Psr\Log\LoggerInterface;
-use Whoops\Handler\{JsonResponseHandler, PrettyPageHandler};
+use Whoops\Handler\PrettyPageHandler;
 use stdClass;
 use Throwable;
 use TypeError;
@@ -36,7 +36,6 @@ use function sprintf;
 
 (new WoopsRunner)
     ->prependHandler(new PrettyPageHandler)
-    ->prependHandler(new JsonResponseHandler)
     ->register();
 
 class App implements RequestHandlerInterface
@@ -58,9 +57,9 @@ class App implements RequestHandlerInterface
         private mixed $renderer = 'start_response')
     {
         date_default_timezone_set('UTC');
-        $this->withErrorHandler(HTTPError::class, 'static::httpErrorHandler');
-        $this->withErrorHandler(Exception::class, 'static::phpErrorHandler');
-        $this->withErrorHandler(Error::class, 'static::phpErrorHandler');
+        $this->withErrorHandler(HTTPError::class, [static::class, 'httpErrorHandler']);
+        $this->withErrorHandler(Exception::class, [static::class, 'phpErrorHandler']);
+        $this->withErrorHandler(Error::class, [static::class, 'phpErrorHandler']);
         $this->container = new DIContainer(new Module($config), ...$modules);
         $this->middleware = [new GzipMiddleware, ...$middleware, CorsMiddleware::class];
     }
@@ -125,9 +124,22 @@ class App implements RequestHandlerInterface
         array $middleware = [],
         bool $explicit = false): App
     {
-        $this->container->get(Router::class)->route($uriTemplate, $resource);
-        $this->explicit[$uriTemplate] = [$explicit, $middleware];
-        return $this;
+        try {
+            $this->container->get(Router::class)->route($uriTemplate, $resource);
+            $this->explicit[$uriTemplate] = [$explicit, $middleware];
+            return $this;
+        } catch (Throwable $exception) {
+            $response = $this->container->get(ResponseInterface::class);
+            if ($this->handleException(
+                $request = $this->container->get(ServerRequestInterface::class),
+                $response,
+                $exception
+            )) {
+                ($this->container)($this->renderer, [$request, $response]);
+                exit;
+            }
+            throw $exception;
+        }
     }
 
     /**
@@ -145,7 +157,7 @@ class App implements RequestHandlerInterface
         array $middleware = []): App
     {
         foreach ($routes as $route) {
-            // (template, resource, middleware, explicit)
+            /**[ template, resource, middleware, explicit ]**/
             $route += ['', '', [], false];
             [$uriTemplate, $resource, $mw, $explicit] = $route;
             $this->route($prefix . $uriTemplate, $resource, array_merge($middleware, $mw), $explicit);

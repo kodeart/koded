@@ -104,7 +104,7 @@ class RouterComplexTest extends TestCase
             $this->router->route('/{param:regexeses:\s+}', function() {});
         } catch (HTTPConflict $ex) {
             $this->assertStringContainsString(
-                'Invalid route parameter type regexeses',
+                "Invalid route parameter type 'regexeses'",
                 $ex->getTitle());
 
             $this->assertStringContainsString(

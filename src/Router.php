@@ -180,7 +180,7 @@ class Router
             instance: $template,
         );
         isset($types[$type]) or throw (new HTTPConflict(
-            title: "Invalid route parameter type $type",
+            title: "Invalid route parameter type '$type'",
             detail: 'Use one of the supported parameter types',
             instance: $template,
         ))->setMember('supported-types', array_keys($types));

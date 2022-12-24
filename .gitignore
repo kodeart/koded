@@ -7,6 +7,7 @@ site/
 vendor/
 .DS_Store/
 .idea/
+.fleet/
 .vscode/
 .settings/
 .project/

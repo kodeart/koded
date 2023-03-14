@@ -26,7 +26,8 @@
     "koded/stdlib": "6.0.2 as 5.1.1",
     "filp/whoops": "^2.7",
     "ext-json": "*",
-    "ext-mbstring": "*"
+    "ext-mbstring": "*",
+    "": ""
   },
   "autoload": {
     "classmap": [

@@ -8,7 +8,8 @@ use Exception;
 use InvalidArgumentException;
 use Koded\DIContainer;
 use Koded\Framework\Middleware\{CallableMiddleware, CorsMiddleware, GzipMiddleware};
-use Koded\Http\Interfaces\{HttpStatus, Request, Response};
+use Koded\Http\Interfaces\{HttpStatus, Response};
+use Koded\Http\HTTPError;
 use Koded\Stdlib\Configuration;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
@@ -239,13 +240,13 @@ class App implements RequestHandlerInterface
             'method' => $request->getMethod(),
             'path' => $path
         ]);
-        if (Request::OPTIONS === $method = $request->getMethod()) {
+        if ('OPTIONS' === $method = $request->getMethod()) {
             return create_options_response($allowed);
         }
         if (empty($resource)) {
             return path_not_found($path);
         }
-        if (Request::HEAD === $method) {
+        if ('HEAD' === $method) {
             return head_response((string)$request->getUri(), $allowed);
         }
         if ($resource instanceof Closure || function_exists($resource)) {

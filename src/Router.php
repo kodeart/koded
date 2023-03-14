@@ -2,6 +2,7 @@
 
 namespace Koded\Framework;
 
+use Koded\Http\HTTPConflict;
 use Koded\Stdlib\UUID;
 use Psr\SimpleCache\CacheInterface;
 use Throwable;

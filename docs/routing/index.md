@@ -8,7 +8,7 @@ URI routing in **Koded** is easy. When dealing with routes keep in mind the foll
   - the HTTP method for the route (endpoint) is implemented **in the resource** object (or function)
   - this framework does not offer a _"Route"_ object
   - parsed [URI parameters](parameters.md) are stored in the `Psr\Http\Message\ServerRequestInterface@attributes`
-    with their corresponding `name => value` pairs
+    as `name => value` pairs
   - [all routes are cached](caching.md) for better performance
 
 

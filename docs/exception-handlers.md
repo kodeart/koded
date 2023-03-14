@@ -5,7 +5,7 @@ By default, the following exceptions are caught and handled
 
  - `\Exception`
  - `\Error`
- - `Koded\Framework\HTTPError`
+ - `Koded\Http\HTTPError`
 
 !!! info ""
     The error response payload follows the [RFC-7807][rfc-7807]{: target="_blank" .external } specification.
@@ -25,7 +25,8 @@ own implementations from the [Koded HTTP][koded-http] library.
 
 # CustomExceptionHandler.php
 
-use Koded\Framework\{App, HTTPError};
+use Koded\Framework\App;
+use Koded\Http\HTTPError;
 use Koded\Http\Interfaces\{Request, Response};
 
 class CustomExceptionHandler {

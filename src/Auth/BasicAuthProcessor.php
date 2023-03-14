@@ -2,7 +2,7 @@
 
 namespace Koded\Framework\Auth;
 
-use Koded\Framework\{HTTPError, HTTPUnauthorized};
+use Koded\Http\{HTTPError, HTTPUnauthorized};
 use Throwable;
 use function base64_decode;
 use function count;

@@ -2,7 +2,7 @@
 
 namespace Tests\Koded\Framework;
 
-use Koded\Framework\{HTTPError, HTTPMethodNotAllowed};
+use Koded\Http\{HTTPError, HTTPMethodNotAllowed};
 use PHPUnit\Framework\TestCase;
 use function serialize;
 use function unserialize;

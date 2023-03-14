@@ -98,7 +98,7 @@ class CorsMiddlewareDisabledTest extends TestCase
 
     protected function setUp(): void
     {
-        $_SERVER['REQUEST_URI'] = '/';
+        $_SERVER['REQUEST_URI'] = 'http://example.net/';
         $_SERVER['HTTP_ORIGIN'] = 'http://example.org';
 
         $this->app = (new App(

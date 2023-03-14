@@ -3,7 +3,7 @@
 namespace Tests\Koded\Framework;
 
 use Koded\Caching\Client\MemoryClient;
-use Koded\Framework\HTTPConflict;
+use Koded\Http\HTTPConflict;
 use Koded\Framework\Router;
 use Koded\Stdlib\UUID;
 use PHPUnit\Framework\TestCase;

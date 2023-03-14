@@ -203,7 +203,7 @@ class CorsMiddlewareWithoutConfigurationTest extends TestCase
 
     protected function setUp(): void
     {
-        $_SERVER['REQUEST_URI'] = '/';
+        $_SERVER['REQUEST_URI'] = 'http://example.net/';
 
         $this->app = (new App(
             renderer: [$this, '_renderer']

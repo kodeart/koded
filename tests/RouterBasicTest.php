@@ -2,13 +2,15 @@
 
 namespace Tests\Koded\Framework;
 
+use Closure;
 use Koded\Caching\Client\MemoryClient;
-use Koded\Framework\HTTPConflict;
 use Koded\Framework\Router;
+use Koded\Http\HTTPConflict;
 use Koded\Http\Interfaces\HttpStatus;
 use PHPUnit\Framework\TestCase;
 use Psr\SimpleCache\CacheInterface;
 use Tests\Koded\Framework\Fixtures\TestResource;
+use function crc32;
 
 class RouterBasicTest extends TestCase
 {
@@ -19,7 +21,7 @@ class RouterBasicTest extends TestCase
         $router = new Router(new MemoryClient);
 
         try {
-            $resource = function() {};
+            $resource = function () { };
             $router->route('/{fubar}/', $resource);
             $router->route('/{param}/', $resource);
 
@@ -41,7 +43,7 @@ class RouterBasicTest extends TestCase
     {
         $router = new Router(new MemoryClient);
 
-        $resource = function() {};
+        $resource = function () { };
         $router->route('/fubar', $resource);
         $router->route('/{param}', $resource);
 
@@ -77,7 +79,7 @@ class RouterBasicTest extends TestCase
     {
         $router = new Router(new MemoryClient);
 
-        $resource = function() {};
+        $resource = function () { };
         $router->route('/{param}', $resource);
         $router->route('/fubar', $resource);
 
@@ -98,10 +100,10 @@ class RouterBasicTest extends TestCase
         /** @var CacheInterface $cache */
 
         $template = '/fubar/';
-        $templateId = 'r.' . \crc32($template);
+        $templateId = 'r.' . crc32($template);
 
         $router = new Router(new MemoryClient);
-        $router->route($template, function() {});
+        $router->route($template, function () { });
 
         $cache = $this->objectProperty($router, 'cache');
         $this->assertEmpty(
@@ -111,7 +113,7 @@ class RouterBasicTest extends TestCase
         $callbacks = $this->objectProperty($router, 'callback');
 
         $this->assertInstanceOf(
-            \Closure::class,
+            Closure::class,
             $callbacks[$templateId]['resource'],
             'Non-cacheable resources are stored in the router callback registry');
 
@@ -123,7 +125,7 @@ class RouterBasicTest extends TestCase
         /** @var CacheInterface $cache */
 
         $template = '/fubar/';
-        $templateId = 'r.' . \crc32($template);
+        $templateId = 'r.' . crc32($template);
 
         $router = new Router(new MemoryClient);
         $router->route($template, TestResource::class);

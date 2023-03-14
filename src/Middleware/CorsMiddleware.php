@@ -2,7 +2,7 @@
 
 namespace Koded\Framework\Middleware;
 
-use Koded\Http\Interfaces\{HttpStatus, Request};
+use Koded\Http\Interfaces\HttpStatus;
 use Koded\Http\ServerResponse;
 use Koded\Stdlib\Configuration;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
@@ -67,7 +67,7 @@ class CorsMiddleware implements MiddlewareInterface
     private function isPreFlightRequest(ServerRequestInterface $request): bool
     {
         // https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#preflighted_requests
-        return Request::OPTIONS === $request->getMethod()
+        return 'OPTIONS' === $request->getMethod()
             && $request->hasHeader('Access-Control-Request-Method');
     }
 
@@ -158,6 +158,10 @@ class CorsMiddleware implements MiddlewareInterface
         if (false === $request->hasHeader('Origin')) {
             return true;
         }
+//        if ('OPTIONS' !== $request->getMethod()) {
+//            return true;
+//        }
+
         // Same origin?
         return $request->getHeaderLine('Origin') === $request->getUri()->getScheme() . '://' . $request->getUri()->getHost();
     }

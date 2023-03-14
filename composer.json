@@ -9,6 +9,7 @@
     "source": "https://github.com/kodeart/koded"
   },
   "keywords": [
+    "rmr",
     "rest",
     "micro",
     "framework"
@@ -18,7 +19,7 @@
     "psr/http-server-middleware": "^1",
     "koded/container": "~3.0",
     "koded/cache-simple": "^3",
-    "koded/http": "^3.1",
+    "koded/http": "4.*",
     "koded/i18n": "~0.9",
     "koded/logging": "^3.1",
     "koded/session": "2.*",
@@ -57,7 +58,8 @@
   },
   "require-dev": {
     "phpunit/phpunit": "^9",
-    "symfony/var-dumper": "^5"
+    "symfony/var-dumper": "^5",
+    "twig/twig": "^3"
   },
   "autoload-dev": {
     "psr-4": {

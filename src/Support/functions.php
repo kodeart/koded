@@ -1,8 +1,6 @@
 <?php declare(strict_types=1);
 
-use Koded\Framework\HTTPError;
-//use Koded\Framework\I18n\{I18n, I18nCatalog};
-use Koded\Http\AcceptHeaderNegotiator;
+use Koded\Http\{AcceptHeaderNegotiator, HTTPError};
 use Koded\Http\Interfaces\{Request, Response};
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use function Koded\Http\create_stream;

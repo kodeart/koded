@@ -23,7 +23,7 @@
     "koded/i18n": "^0.9",
     "koded/logging": "^3.1",
     "koded/session": "2.*",
-    "koded/stdlib": "6.2.0 as 5.1.1",
+    "koded/stdlib": "6.2.1 as 5.1.1",
     "filp/whoops": "^2.15",
     "ext-json": "*",
     "ext-mbstring": "*"

@@ -22,7 +22,7 @@ class RouterComplexTest extends TestCase
         $match = $this->router->match("/api/462/collection/$uuid");
 
         $this->assertSame(
-            '~^/api/(?P<id>\-?\d+)/collection/(?P<uuid>[a-f0-9]{8}\-[a-f0-9]{4}\-[1|3|4|5][a-f0-9]{3}\-[a-f0-9]{4}\-[a-f0-9]{12})$~',
+            '~^/api/(?P<id>\-?\d+)/collection/(?P<uuid>[a-f0-9]{8}\-[a-f0-9]{4}\-[1345][a-f0-9]{3}\-[a-f0-9]{4}\-[a-f0-9]{12})$~',
             $match['regex']);
 
         $this->assertSame(

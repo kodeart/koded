@@ -6,11 +6,14 @@
          colors="true">
     <coverage processUncoveredFiles="true">
         <include>
-            <directory>./src</directory>
+            <directory>src</directory>
         </include>
+        <exclude>
+            <directory>src/locale</directory>
+        </exclude>
     </coverage>
     <testsuites>
-        <testsuite name="Koded Micro-framework Test Suite">
+        <testsuite name="Koded RMR Framework - Test Suite">
             <directory>tests</directory>
         </testsuite>
     </testsuites>

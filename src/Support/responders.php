@@ -46,7 +46,7 @@ function no_app_routes(): callable
 function head_response(string $uri, array $methods): callable
 {
     return function () use ($uri, $methods): ResponseInterface {
-        $methods || $methods = ['HEAD', 'OPTIONS'];
+        empty($methods) and $methods = ['HEAD', 'OPTIONS'];
         if (false === in_array('GET', $methods)) {
             return (new ServerResponse)->withHeader('Allow', $methods);
         }

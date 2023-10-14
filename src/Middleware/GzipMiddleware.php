@@ -18,10 +18,12 @@ class GzipMiddleware implements MiddlewareInterface
         RequestHandlerInterface $handler): ResponseInterface
     {
         $response = $handler->handle($request);
+
         if ($response->hasHeader(self::CONTENT_ENCODING)) {
+            // Probably already encoded; move on
             return $response;
         }
-        if (!$response->getBody()->getSize()) {
+        if (empty($response->getBody()->getSize())) {
             return $response;
         }
         if (false === $this->isAcceptable($request->getHeaderLine(self::ACCEPT_ENCODING))) {
@@ -33,21 +35,18 @@ class GzipMiddleware implements MiddlewareInterface
             ->withAddedHeader('Vary', self::ACCEPT_ENCODING)
             ->withBody(create_stream(
                 gzencode($response->getBody()->getContents(), 7),
-                $response->getBody()->getMetadata('mode')
+                (string)$response->getBody()->getMetadata('mode')
             ));
     }
 
     private function isAcceptable(string $encoding): bool
     {
-        if (empty($encoding)) {
-            return false;
-        }
-        if (str_contains($encoding, 'gzip')) {
-            return true;
-        }
-        if (str_contains($encoding, '*')) {
-            return true;
-        }
-        return false;
+        return match (true) {
+            // NOTE: most common first
+            empty($encoding) => false,
+            str_contains($encoding, 'gzip'),
+            str_contains($encoding, '*') => true,
+            default => false
+        };
     }
 }

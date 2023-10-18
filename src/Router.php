@@ -16,7 +16,6 @@ use function Koded\Stdlib\json_serialize;
 use function Koded\Stdlib\json_unserialize;
 use function preg_match;
 use function preg_match_all;
-use function sprintf;
 use function str_contains;
 use function str_replace;
 
@@ -45,8 +44,8 @@ class Router
 
     public function route(string $template, object|string $resource): void
     {
-        assert('/' === $template[0], 'URI template must begin with "/"');
-        assert(false === str_contains($template, '//'), 'URI template has duplicate slashes');
+        assert('/' === ($template[0] ?? ''), __('koded.router.noSlash'));
+        assert(false === str_contains($template, '//'), __('koded.router.duplicateSlashes'));
 
         $id = $this->id($template);
         if ($this->index[$id] ?? false) {
@@ -74,10 +73,6 @@ class Router
 
     private function normalizeParams(array $route, array $params): array
     {
-        if (empty($params)) {
-            $route['params'] = [];
-            return $route;
-        }
         $route['params'] = json_unserialize(json_serialize(
             array_filter($params, 'is_string', ARRAY_FILTER_USE_KEY),
             JSON_NUMERIC_CHECK)
@@ -162,7 +157,7 @@ class Router
             ];
         } catch (Throwable $ex) {
             throw new HTTPConflict(
-                title: 'PCRE compilation error. ' . $ex->getMessage(),
+                title: __('koded.router.pcre.compilation', [$ex->getMessage()]),
                 detail: $ex->getMessage(),
                 instance: $template,
             );
@@ -176,13 +171,13 @@ class Router
         string $filter): void
     {
         ('regex' === $type and empty($filter)) and throw new HTTPConflict(
-            title: 'Invalid route. No regular expression provided',
-            detail: 'Provide a proper PCRE regular expression',
+            title: __('koded.router.invalidRoute.title'),
+            detail: __('koded.router.invalidRoute.detail'),
             instance: $template,
         );
         isset($types[$type]) or throw (new HTTPConflict(
-            title: "Invalid route parameter type '$type'",
-            detail: 'Use one of the supported parameter types',
+            title: __('koded.router.invalidParam.title', [$type]),
+            detail: __('koded.router.invalidParam.detail'),
             instance: $template,
         ))->setMember('supported-types', array_keys($types));
     }
@@ -194,16 +189,13 @@ class Router
     {
         isset($this->identity[$identity]) and throw (new HTTPConflict(
             instance: $template,
-            title: 'Duplicate route',
-            detail: sprintf(
-                'Detected a multiple route definitions. The URI template ' .
-                'for "%s" conflicts with an already registered route "%s".',
-                $template, $this->identity[$identity])
+            title: __('koded.router.duplicateRoute.title'),
+            detail: __('koded.router.duplicateRoute.detail', [$template, $this->identity[$identity]])
         ))->setMember('conflict-route', [$template => $this->identity[$identity]]);
 
         $paths > 1 and throw new HTTPConflict(
-            title: 'Invalid route. Multiple path parameters in the route template detected',
-            detail: 'Only one "path" type is allowed as URI parameter',
+            title: __('koded.router.multiPaths.title'),
+            detail: __('koded.router.multiPaths.detail'),
             instance: $template,
         );
     }

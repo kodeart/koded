@@ -100,13 +100,13 @@ class ErrorHandlersTest extends TestCase
     protected function setUp(): void
     {
         $_SERVER['REQUEST_URI'] = '/';
-        ini_set('error_log', '/dev/null');
+        //ini_set('error_log', '/dev/null');
     }
 
     protected function tearDown(): void
     {
         unset($_SERVER['HTTP_X_REQUEST_TEST_HEADER']);
-        ini_set('error_log', '');
+        //ini_set('error_log', '');
     }
 
     public function _renderer(ServerRequestInterface $request, ResponseInterface $response): array

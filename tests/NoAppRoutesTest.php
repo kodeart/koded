@@ -11,7 +11,9 @@ class NoAppRoutesTest extends TestCase
 {
     public function test_no_responder()
     {
-        $app = new App(renderer: [$this, '_renderer']);
+        $app = new App(
+            renderer: fn(ResponseInterface $response) => $response
+        );
 
         /** @var ResponseInterface $response */
         $response = call_user_func($app);
@@ -22,10 +24,5 @@ class NoAppRoutesTest extends TestCase
         $this->assertStringContainsString(
             'No Routes',
             (string)$response->getBody());
-    }
-
-    public function _renderer(ResponseInterface $response): ResponseInterface
-    {
-        return $response;
     }
 }

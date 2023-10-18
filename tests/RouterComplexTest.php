@@ -7,6 +7,7 @@ use Koded\Http\HTTPConflict;
 use Koded\Framework\Router;
 use Koded\Stdlib\UUID;
 use PHPUnit\Framework\TestCase;
+use Throwable;
 
 class RouterComplexTest extends TestCase
 {
@@ -55,7 +56,7 @@ class RouterComplexTest extends TestCase
     {
         try {
             $this->router->route('/{id:int}/{id:float}', function() {});
-        } catch (\Throwable $ex) {
+        } catch (Throwable $ex) {
             $this->assertInstanceOf(HTTPConflict::class, $ex);
             $this->assertStringContainsString(
                 'PCRE compilation error',
@@ -67,7 +68,7 @@ class RouterComplexTest extends TestCase
     {
         try {
             $this->router->route('/{path1:path}/{path2:path}', function() {});
-        } catch (\Throwable $ex) {
+        } catch (Throwable $ex) {
             $this->assertInstanceOf(HTTPConflict::class, $ex);
             $this->assertStringContainsString(
                 'Only one "path"',
@@ -147,7 +148,7 @@ class RouterComplexTest extends TestCase
             $this->router->route('/{param:regex:}', function() {});
         } catch (HTTPConflict $ex) {
             $this->assertStringContainsString(
-                'Invalid route. No regular expression',
+                'Invalid route. No regular expression provided',
                 $ex->getTitle());
 
             $this->assertStringContainsString(

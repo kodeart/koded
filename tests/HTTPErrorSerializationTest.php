@@ -2,7 +2,9 @@
 
 namespace Tests\Koded\Framework;
 
-use Koded\Http\{HTTPError, HTTPMethodNotAllowed};
+use Koded\Http\HTTPError;
+use Koded\Http\HTTPMethodNotAllowed;
+use Koded\Http\Interfaces\HttpStatus;
 use PHPUnit\Framework\TestCase;
 use function serialize;
 use function unserialize;
@@ -11,11 +13,11 @@ class HTTPErrorSerializationTest extends TestCase
 {
     public function test_default_object_serialization()
     {
-        $expected = new HTTPError(424);
+        $expected = new HTTPError(HttpStatus::METHOD_NOT_ALLOWED);
         $actual = unserialize(serialize($expected));
 
         $this->assertEquals($expected, $actual);
-        $this->assertNotSame($expected, $actual, '(just test for obvious reasons)');
+        $this->assertNotSame($expected, $actual, '(the instances are not same)');
     }
 
     public function test_full_object_serialization()

@@ -2,8 +2,8 @@
 
 namespace Tests\Koded\Framework;
 
+use Exception;
 use Koded\Framework\App;
-use Koded\Framework\Middleware\XPoweredByMiddleware;
 use Koded\Http\Interfaces\HttpStatus;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
@@ -13,20 +13,15 @@ class ErrorHandlersTest extends TestCase
 {
     public function test_default_exception_handler()
     {
-        ini_set('error_log', '/dev/null');
+        $_SERVER['HTTP_X_REQUEST_TEST_HEADER'] = 'x request test';
 
         /**
          * @var ServerRequestInterface $request
          * @var ResponseInterface $response
          */
 
-        $app = new App(
-            renderer: [$this, '_renderer'],
-            middleware: [XPoweredByMiddleware::class]
-        );
-
-        $app->route('/', fn() => throw new \Exception('boooom', 400));
-
+        $app = new App(renderer: [$this, '_renderer']);
+        $app->route('/', fn() => throw new Exception('boooom', 400));
         [$request, $response] = call_user_func($app);
 
         // Request object
@@ -68,25 +63,54 @@ class ErrorHandlersTest extends TestCase
     {
         $exceptionMessage = 'boooom';
 
-        $this->expectException(\Exception::class);
-        $this->expectExceptionCode(400);
+        $this->expectException(Exception::class);
+        $this->expectExceptionCode(HttpStatus::BAD_REQUEST);
         $this->expectExceptionMessage($exceptionMessage);
 
-        $app = new App(
-            renderer: [$this, '_renderer'],
-            middleware: [XPoweredByMiddleware::class]
-        );
-
-        $app->withoutErrorHandler(\Exception::class);
-
-        $app->route('/', fn() => throw new \Exception($exceptionMessage, 400));
+        $app = new App(renderer: [$this, '_renderer']);
+        $app->withoutErrorHandler(Exception::class);
+        $app->route('/', fn() => throw new Exception($exceptionMessage, 400));
         call_user_func($app);
+    }
+
+    public function test_throwable_for_route_method()
+    {
+        if (getenv('CI')) {
+            $this->markTestSkipped('WIP');
+        }
+
+        $this->expectException(\AssertionError::class);
+        $this->expectExceptionCode(1);
+        $this->expectExceptionMessage('URI template has duplicate slashes');
+
+        (new App)
+            ->route('//', fn(ResponseInterface $r) => $r);
+
+        $this->assertJsonStringEqualsJsonString(
+            <<<'JSON'
+            {
+                "status":409,
+                "instance":"/",
+                "detail":"URI template has duplicate slashes",
+                "title":"Conflict",
+                "type":"https://httpstatuses.com/409"
+                }
+            JSON,
+            $this->getActualOutput(),
+            'The exception is captured in the response payload (JSON by default)'
+        );
     }
 
     protected function setUp(): void
     {
         $_SERVER['REQUEST_URI'] = '/';
-        $_SERVER['HTTP_X_REQUEST_TEST_HEADER'] = 'x request test';
+        //ini_set('error_log', '/dev/null');
+    }
+
+    protected function tearDown(): void
+    {
+        unset($_SERVER['HTTP_X_REQUEST_TEST_HEADER']);
+        //ini_set('error_log', '');
     }
 
     public function _renderer(ServerRequestInterface $request, ResponseInterface $response): array

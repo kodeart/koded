@@ -6,6 +6,7 @@ use Koded\Caching\Client\MemoryClient;
 use Koded\Framework\Router;
 use Koded\Stdlib\UUID;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 class RouterTemplateTypesTest extends TestCase
 {
@@ -34,7 +35,7 @@ class RouterTemplateTypesTest extends TestCase
         $match = $this->router->match('/12.345/67.890');
 
         // resolved parameters
-        $expected = new \stdClass;
+        $expected = new stdClass;
         $expected->lon = 12.345;
         $expected->lat = 67.89;
 
@@ -47,7 +48,7 @@ class RouterTemplateTypesTest extends TestCase
         $match = $this->router->match('/1.234/5.678');
 
         // resolved parameters
-        $expected = new \stdClass;
+        $expected = new stdClass;
         $expected->lon = 1.234;
         $expected->lat = 5.678;
 
@@ -60,7 +61,7 @@ class RouterTemplateTypesTest extends TestCase
         $match = $this->router->match('/foo/bar-123/baz.json');
 
         // resolved parameters
-        $expected = new \stdClass;
+        $expected = new stdClass;
         $expected->uri = 'foo/bar-123/baz.json';
 
         $this->assertEquals($expected, $match['params']);
@@ -72,7 +73,7 @@ class RouterTemplateTypesTest extends TestCase
         $match = $this->router->match('/foo-bar-baz.xml');
 
         // resolved parameters
-        $expected = new \stdClass;
+        $expected = new stdClass;
         $expected->param = 'foo-bar-baz.xml';
 
         $this->assertEquals($expected, $match['params']);

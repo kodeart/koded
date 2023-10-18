@@ -8,14 +8,10 @@ use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 
 class AuthMiddleware implements MiddlewareInterface
 {
-    private readonly AuthProcessor $processor;
-    private readonly AuthBackend $backend;
-
-    public function __construct(AuthProcessor $processor, AuthBackend $backend)
-    {
-        $this->processor = $processor;
-        $this->backend = $backend;
-    }
+    public function __construct(
+        private readonly AuthProcessor $processor,
+        private readonly AuthBackend $backend
+    ) {}
 
     public function process(
         ServerRequestInterface $request,

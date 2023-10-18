@@ -5,7 +5,8 @@ nbproject/
 public/
 site/
 vendor/
-.DS_Store/
+tmp/
+
 .idea/
 .fleet/
 .vscode/
@@ -13,6 +14,8 @@ vendor/
 .project/
 .buildpath/
 .directory/
+
+.DS_Store
 Thumbs.db
 Desktop.ini
 ehthumbs.db

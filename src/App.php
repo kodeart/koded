@@ -29,15 +29,18 @@ use function function_exists;
 use function get_class;
 use function get_debug_type;
 use function get_parent_class;
+use function getenv;
 use function is_a;
 use function is_callable;
 use function method_exists;
 use function rawurldecode;
 use function sprintf;
 
-(new WoopsRunner)
-    ->prependHandler(new PrettyPageHandler)
-    ->register();
+if (false === getenv('PRODUCTION')) {
+    (new WoopsRunner)
+        ->prependHandler(new PrettyPageHandler)
+        ->register();
+}
 
 class App implements RequestHandlerInterface
 {
@@ -125,22 +128,9 @@ class App implements RequestHandlerInterface
         array $middleware = [],
         bool $explicit = false): App
     {
-        try {
-            $this->container->get(Router::class)->route($uriTemplate, $resource);
-            $this->explicit[$uriTemplate] = [$explicit, $middleware];
-            return $this;
-        } catch (Throwable $exception) {
-            $response = $this->container->get(ResponseInterface::class);
-            if ($this->handleException(
-                $request = $this->container->get(ServerRequestInterface::class),
-                $response,
-                $exception
-            )) {
-                ($this->container)($this->renderer, [$request, $response]);
-                exit;
-            }
-            throw $exception;
-        }
+        $this->container->get(Router::class)->route($uriTemplate, $resource);
+        $this->explicit[$uriTemplate] = [$explicit, $middleware];
+        return $this;
     }
 
     /**
@@ -161,7 +151,11 @@ class App implements RequestHandlerInterface
             /**[ template, resource, middleware, explicit ]**/
             $route += ['', '', [], false];
             [$uriTemplate, $resource, $mw, $explicit] = $route;
-            $this->route($prefix . $uriTemplate, $resource, array_merge($middleware, $mw), $explicit);
+            $this->route($prefix . $uriTemplate,
+                $resource,
+                array_merge($middleware, $mw),
+                $explicit
+            );
         }
         return $this;
     }
@@ -169,12 +163,10 @@ class App implements RequestHandlerInterface
     public function withErrorHandler(string $type, callable|null $handler): App
     {
         if (false === is_a($type, Throwable::class, true)) {
-            throw new TypeError('"type" must be an exception type', HttpStatus::CONFLICT);
+            throw new TypeError(__('koded.handler.wrong.type'), HttpStatus::CONFLICT);
         }
         if (null === $handler && false === method_exists($type, 'handle')) {
-            throw new TypeError('Error handler must either be specified explicitly,' .
-                                 ' or defined as a static method named "handle" that is a member of' .
-                                 ' the given exception type', HttpStatus::NOT_IMPLEMENTED);
+            throw new TypeError(__('koded.handler.missing'), HttpStatus::NOT_IMPLEMENTED);
         }
         $this->handlers[$type] = $handler;
         return $this;
@@ -216,7 +208,9 @@ class App implements RequestHandlerInterface
                 is_a($middleware, MiddlewareInterface::class, true) => $this->container->new($middleware),
                 is_callable($middleware) => new CallableMiddleware($middleware),
                 default => throw new InvalidArgumentException(
-                    sprintf('Middleware "%s" must implement %s', $class, MiddlewareInterface::class)
+                    __('koded.middleware.implements', [
+                        $class, MiddlewareInterface::class
+                    ])
                 )
             };
         }

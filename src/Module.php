@@ -61,7 +61,7 @@ final class Module implements DIModule
             $factory->root = dirname($this->configuration);
         }
         load:
-        is_readable('.env') and $factory->fromEnvFile('.env');
+        is_readable("$factory->root/.env") and $factory->fromEnvFile("$factory->root/.env");
         foreach ($factory->get('autoloaders', []) as $autoloader) {
             include_once $autoloader;
         }

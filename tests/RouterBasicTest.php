@@ -137,4 +137,15 @@ class RouterBasicTest extends TestCase
             $cache->get($templateId)['resource'],
             'Resource classes are stored by FQCN');
     }
+
+    public function test_match_without_named_parameters()
+    {
+        $router = new Router(new MemoryClient);
+        $router->route('/\d+', new \stdClass);
+        $match = $router->match('/123');
+
+        $this->assertArrayHasKey('params', $match);
+        $this->assertSame([], $match['params'],
+            'Path matches, but there are no named parameters in URI template');
+    }
 }

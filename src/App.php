@@ -26,7 +26,6 @@ use function call_user_func_array;
 use function date_default_timezone_set;
 use function error_log;
 use function function_exists;
-use function get_class;
 use function get_debug_type;
 use function get_parent_class;
 use function getenv;
@@ -66,6 +65,7 @@ class App implements RequestHandlerInterface
         $this->withErrorHandler(Error::class, [static::class, 'phpErrorHandler']);
         $this->container = new DIContainer(new Module($config), ...$modules);
         $this->middleware = [new GzipMiddleware, ...$middleware, CorsMiddleware::class];
+        $this->container->share($this->container->new(Router::class));
     }
 
     /**
@@ -202,7 +202,7 @@ class App implements RequestHandlerInterface
         [$explicit, $middleware] = $this->explicit[$uriTemplate] + [true];
         $this->middleware = false === $explicit ? [...$this->middleware, ...$middleware] : $middleware;
         foreach ($this->middleware as $middleware) {
-            $class = 'string' === get_debug_type($middleware) ? $middleware : get_class($middleware);
+            $class = 'string' === get_debug_type($middleware) ? $middleware : $middleware::class;
             $this->stack[$class] = match (true) {
                 $middleware instanceof MiddlewareInterface => $middleware,
                 is_a($middleware, MiddlewareInterface::class, true) => $this->container->new($middleware),

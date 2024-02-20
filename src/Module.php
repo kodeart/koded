@@ -40,7 +40,6 @@ final class Module implements DIModule
         I18n::register(I18nCatalog::new($conf), true);
         $container->share(new Log(...$conf->get('logging', [])));
         $container->share(simple_cache_factory(...$conf->get('caching', [])));
-        $container->share($container->new(Router::class));
         // Default authentication
         $container->bind(AuthBackend::class, SessionAuthBackend::class);
         $container->bind(AuthProcessor::class, BearerAuthProcessor::class);

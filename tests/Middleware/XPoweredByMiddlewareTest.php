@@ -13,26 +13,33 @@ class XPoweredByMiddlewareTest extends TestCase
 {
     private App $app;
 
-    public function test_xpoweredby_headers()
+    public function test_xpoweredby_with_null_value()
     {
-        $version = file_get_contents(__DIR__ . '/../../VERSION');
+        $this->app
+            ->route('/', TestResource::class, [
+                XPoweredByMiddleware::class
+            ], true);
+
         [, $response] = call_user_func($this->app);
 
-        $this->assertStringContainsString(
-            $version,
-            $response->getheaderLine('X-Powered-By'),
-            'Should set the version in the header'
-        );
+        $this->assertArrayNotHasKey('x-powered-by', $response->getHeaders());
+        $this->assertSame('', $response->getheaderLine('X-Powered-By'));
+        $this->assertSame([], $response->getHeader('x-powered-by'));
     }
 
-    public function test_xpoweredby_version()
+    public function test_xpoweredby_value()
     {
-        define('VERSION', ['1.2.3', 'dev', '0']);
+        $this->app
+            ->route('/', TestResource::class, [
+                new XPoweredByMiddleware('koded')
+            ], true);
+
         [, $response] = call_user_func($this->app);
 
         $this->assertSame(
-            'Koded v1.2.3-dev',
-            $response->getHeaderLine('x-powered-by')
+            'koded',
+            $response->getheaderLine('X-Powered-By'),
+            'Should set the value in the header'
         );
     }
 
@@ -49,6 +56,6 @@ class XPoweredByMiddlewareTest extends TestCase
 
         $this->app = (new App(
             renderer: [$this, '_renderer']
-        ))->route('/', TestResource::class, [XPoweredByMiddleware::class], true);
+        ));
     }
 }

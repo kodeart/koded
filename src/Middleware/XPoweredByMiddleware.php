@@ -7,18 +7,19 @@ use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 
 class XPoweredByMiddleware implements MiddlewareInterface
 {
-    private readonly string|null $value;
-
-    public function __construct(string|null $value = null)
+    public function __construct(private string|null $value = null)
     {
-        $this->value = empty($value) ? 'Koded v' . get_version() : $value;
+        @header_remove('x-powered-by');
     }
 
     public function process(
         ServerRequestInterface $request,
         RequestHandlerInterface $handler): ResponseInterface
     {
-        return $handler->handle($request)
-            ->withHeader('X-Powered-By', $this->value);
+        $response = $handler->handle($request);
+        if (null === $this->value) {
+            return $response;
+        }
+        return $response->withHeader('x-powered-by', $this->value);
     }
 }

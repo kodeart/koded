@@ -17,7 +17,7 @@
         <span class=c1>// i.e. re-format the error message and set it in the response</span>
     <span class=p>}</span>
 <span class=p>}</span>
-</code></pre></div> <h2 id=register-handler>Register handler<a class=headerlink href=#register-handler title="Permanent link">&para;</a></h2> <div class="admonition warning"> <p class=admonition-title>Register before routes</p> <p>Order matters. It is required to register the custom exception handlers BEFORE the routes, otherwise they won't be handled if the request/route has been resolved.</p> </div> <div class=highlight><pre><span></span><code><span class=cp>&lt;?php</span>
+</code></pre></div> <h2 id=register-handler>Register handler<a class=headerlink href=#register-handler title="Permanent link">&para;</a></h2> <div class="admonition warning"> <p class=admonition-title>Register before routes() method</p> <p>Order matters. It is required to register the custom exception handlers BEFORE the routes, otherwise they won't be handled if the request/route has been resolved.</p> </div> <div class=highlight><pre><span></span><code><span class=cp>&lt;?php</span>
 
 <span class=c1># index.php</span>
 

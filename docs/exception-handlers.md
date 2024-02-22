@@ -45,7 +45,7 @@ class CustomExceptionHandler {
 Register handler
 ----------------
 
-!!! warning "Register before routes"
+!!! warning "Register before routes() method"
     Order matters. It is required to register the custom 
     exception handlers BEFORE the routes, otherwise they 
     won't be handled if the request/route has been resolved.

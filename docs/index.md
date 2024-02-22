@@ -42,20 +42,20 @@ because it is aligned nicely with the HTTP ReST concepts.
 After all, web apps needs fundamental directions and principles,
 not "perfect" solutions so RMR fits here very well.
 
-=== "Resource"
-
+=== "Resource"  
+    
     An **object** in the RESTful system identified by a URL that exposes
     methods that corresponds to the standard HTTP methods (GET, POST, PUT, etc)
     i.e. a business object (entity).
 
-=== "Method"
-
+=== "Method"  
+    
     The **HTTP request method** that corresponds a **Resource** method that is
     executed by the request/URL, which returns a **Representation** for that
     resource.
 
-=== "Representation"
-
+=== "Representation"  
+    
     Provides a **Resource** to clients in a readable format (JSON, XML, PDF, HTML, etc).
     It is the payload of the response object (processed by the HTTP **Method** 
     that is sent back to the client).

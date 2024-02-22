@@ -69,7 +69,7 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.mark
   - pymdownx.superfences
-  - pymdownx.tabbed
+  - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.tilde
   - pymdownx.betterem:
